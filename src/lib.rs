@@ -1,3 +1,5 @@
+mod ast;
+
 use openapiv3::{OpenAPI, Operation, ParameterSchemaOrContent, PathItem, SchemaKind, Type};
 
 pub fn generate_dry_schema(text: &str) -> CodeGenResult {
