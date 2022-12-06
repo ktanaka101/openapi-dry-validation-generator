@@ -1,145 +1,28 @@
-mod ast;
+mod ast_builder;
+mod codegen;
+mod ir_builder;
 
-use openapiv3::{OpenAPI, Operation, ParameterSchemaOrContent, PathItem, SchemaKind, Type};
+use openapiv3::{OpenAPI, Operation, PathItem, ReferenceOr};
 
-pub fn generate_dry_schema(text: &str) -> CodeGenResult {
+pub fn generate_dry_schema(text: &str) -> String {
+    let mut code = String::new();
+
     let openapi = serialize(text);
-    let builder = CodeBuilder::new(&openapi);
-    builder.build()
-}
+    for (pathname, item) in &openapi.paths.paths {
+        let item = match item {
+            ReferenceOr::Item(item) => item,
+            ReferenceOr::Reference { .. } => unimplemented!(),
+        };
+        let operations = handling_operation(item);
+        for operation in operations {
+            let ast_result = ast_builder::build(pathname.clone(), operation);
+            let ir_result = ir_builder::build(&ast_result.ast);
 
-pub struct CodeGenResult {
-    pub code: String,
-    pub errors: Vec<String>,
-}
-
-struct CodeBuilder<'a> {
-    openapi: &'a OpenAPI,
-    errors: Vec<String>,
-}
-
-impl<'a> CodeBuilder<'a> {
-    fn new(openapi: &'a OpenAPI) -> Self {
-        Self {
-            openapi,
-            errors: Vec::new(),
+            code += &codegen::generate(&ir_result.ir);
         }
     }
 
-    fn build(mut self) -> CodeGenResult {
-        let mut paths = self.openapi.paths.paths.keys().collect::<Vec<_>>();
-        paths.sort();
-
-        let mut code = "".to_string();
-
-        for pathname in paths {
-            let path = self.openapi.paths.paths.get(pathname).unwrap();
-            if let Some(item) = path.as_item() {
-                let operations = handling_operation(item);
-                for ope in operations {
-                    if ope.parameters.is_empty() {
-                        continue;
-                    }
-
-                    let id = if let Some(id) = &ope.operation_id {
-                        id
-                    } else {
-                        self.errors
-                            .push(format!("operation_id is not found in {}", pathname));
-                        continue;
-                    };
-
-                    code.push_str(&format!("{} = Dry::Schema.Params do\n", id));
-
-                    for param in &ope.parameters {
-                        let param = if let Some(param) = param.as_item() {
-                            param.parameter_data_ref()
-                        } else {
-                            continue;
-                        };
-
-                        let mut tmp_code = if param.required {
-                            format!("  required(:{}).value(", param.name)
-                        } else {
-                            format!("  optional({}).value(", param.name)
-                        };
-
-                        match &param.format {
-                            ParameterSchemaOrContent::Schema(schema) => {
-                                let schema = if let Some(schema) = schema.as_item() {
-                                    schema
-                                } else {
-                                    continue;
-                                };
-
-                                match &schema.schema_kind {
-                                    SchemaKind::Type(ty) => match ty {
-                                        Type::Integer(_) => {
-                                            tmp_code.push_str(":integer)");
-                                        }
-                                        _ => unimplemented!(),
-                                    },
-                                    SchemaKind::AllOf { .. } => {
-                                        self.errors.push(format!(
-                                            "AllOf is not supported in {}",
-                                            param.name
-                                        ));
-                                        continue;
-                                    }
-                                    SchemaKind::OneOf { .. } => {
-                                        self.errors.push(format!(
-                                            "OneOf is not supported in {}",
-                                            param.name
-                                        ));
-                                        continue;
-                                    }
-                                    SchemaKind::AnyOf { .. } => {
-                                        self.errors.push(format!(
-                                            "AnyOf is not supported in {}",
-                                            param.name
-                                        ));
-                                        continue;
-                                    }
-                                    SchemaKind::Any(_) => {
-                                        self.errors.push(format!(
-                                            "Any is not supported in {}",
-                                            param.name
-                                        ));
-                                        continue;
-                                    }
-                                    SchemaKind::Not { .. } => {
-                                        self.errors.push(format!(
-                                            "Not is not supported in {}",
-                                            param.name
-                                        ));
-                                        continue;
-                                    }
-                                }
-                            }
-                            ParameterSchemaOrContent::Content(_) => {
-                                self.errors.push(format!(
-                                    "Content is not supported in {} {}",
-                                    pathname, id
-                                ));
-                                continue;
-                            }
-                        }
-
-                        code.push_str(&format!("{}\n", tmp_code));
-                    }
-
-                    code.push_str("end\n");
-                }
-            } else {
-                continue;
-            }
-        }
-
-        CodeGenResult {
-            code,
-            errors: self.errors,
-        }
-    }
+    code
 }
 
 fn handling_operation(path: &PathItem) -> Vec<&Operation> {
@@ -164,13 +47,7 @@ mod tests {
 
     fn check(actual: &str, expect: Expect) {
         let schema = boilerplate(actual);
-        let result = generate_dry_schema(&schema);
-
-        let mut debug_actual = result.code;
-        debug_actual.push_str("\n---\n");
-        for err in result.errors {
-            debug_actual.push_str(&format!("{}\n", err));
-        }
+        let debug_actual = generate_dry_schema(&schema);
 
         expect.assert_eq(&debug_actual);
     }
@@ -219,11 +96,9 @@ mod tests {
             }
         "#,
             expect![[r#"
-                testExample = Dry::Schema.Params do
-                  required(:user_id).value(:integer)
+                testExample = Dry::Schema::Params do
+                  required(user_id).value(:integer)
                 end
-
-                ---
             "#]],
         );
     }
