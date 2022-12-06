@@ -11,8 +11,7 @@ I want to be able to delegate the validation of the API to be implemented in Rub
 ## Status
 
 🛠 WIP!!
-Only get request parameters are supported. (And that's the minimum!)
-The implementation is also dirty.
+Only get request parameters are supported.
 Much work still needs to be done!
 
 The ultimate goal is to
