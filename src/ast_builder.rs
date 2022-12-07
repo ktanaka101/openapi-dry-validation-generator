@@ -64,12 +64,7 @@ impl<'a> AstBuilder<'a> {
         let validates = vec![];
 
         match param {
-            Parameter::Query {
-                parameter_data,
-                allow_reserved,
-                style,
-                allow_empty_value,
-            } => {
+            Parameter::Query { parameter_data, .. } => {
                 match &parameter_data.format {
                     ParameterSchemaOrContent::Schema(schema) => {
                         let schema = match schema {
@@ -103,6 +98,7 @@ impl<'a> AstBuilder<'a> {
                         self.add_unsupported_error("Content");
                     }
                 };
+
                 ast::Schema {
                     required: parameter_data.required,
                     ty,
