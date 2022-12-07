@@ -96,8 +96,68 @@ mod tests {
             }
         "#,
             expect![[r#"
-                testExample = Dry::Schema::Params do
+                TestExample = Dry::Schema::Params do
                   required(user_id).value(:integer)
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn defined_name_is_pascal() {
+        check(
+            r#"
+            "/test/example": {
+              "get": {
+                "operationId": "testExample",
+                "responses": {
+                  "200": {
+                    "description": "OK"
+                  }
+                }
+              }
+            }
+        "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                end
+            "#]],
+        );
+
+        check(
+            r#"
+            "/test/example": {
+              "get": {
+                "operationId": "test-example",
+                "responses": {
+                  "200": {
+                    "description": "OK"
+                  }
+                }
+              }
+            }
+        "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                end
+            "#]],
+        );
+
+        check(
+            r#"
+            "/test/example": {
+              "get": {
+                "operationId": "test_example",
+                "responses": {
+                  "200": {
+                    "description": "OK"
+                  }
+                }
+              }
+            }
+        "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
                 end
             "#]],
         );

@@ -1,9 +1,15 @@
+use convert_case::{Case, Casing};
+
 use crate::ir_builder::ir;
 
 pub fn generate(def: &ir::Def) -> String {
     let mut code = String::new();
 
-    code.push_str(&format!("{} = {}", def.name, gen_schema_class(&def.class)));
+    code.push_str(&format!(
+        "{} = {}",
+        gen_def_name(&def.name),
+        gen_schema_class(&def.class)
+    ));
     code.push(' ');
     code.push_str(&gen_block(&def.block, 1));
 
@@ -53,4 +59,8 @@ fn gen_macro(r#macro: &ir::Macro) -> String {
             ir::Type::Integer => "value(:integer)".to_string(),
         },
     }
+}
+
+fn gen_def_name(name: &str) -> String {
+    name.to_case(Case::Pascal)
 }
