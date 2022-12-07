@@ -14,7 +14,12 @@ pub enum Stmt {
 }
 
 pub enum Macro {
-    Value { ty: Type },
+    Value { ty: Type, validates: Vec<Validate> },
+}
+
+pub enum Validate {
+    Max(i64),
+    Min(i64),
 }
 
 pub enum Type {

@@ -97,7 +97,7 @@ mod tests {
         "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(user_id).value(:integer)
+                  required(user_id).value(:integer, )
                 end
             "#]],
         );
@@ -158,6 +158,41 @@ mod tests {
         "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_validates_integer() {
+        check(
+            r#"
+            "/test/example": {
+              "get": {
+                "operationId": "testExample",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user_id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 20,
+                            "minimum": 10
+                        }
+                    }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "OK"
+                  }
+                }
+              }
+            }
+        "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(user_id).value(:integer, max: 20, min: 10)
                 end
             "#]],
         );

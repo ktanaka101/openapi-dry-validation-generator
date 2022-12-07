@@ -66,7 +66,7 @@ impl<'a> AstBuilder<'a> {
     }
 
     fn build_param(&mut self, param: &ParameterData) -> Option<ast::Schema> {
-        let validates = vec![];
+        let mut validates = vec![];
 
         let ty = match &param.format {
             ParameterSchemaOrContent::Schema(schema) => {
@@ -77,7 +77,26 @@ impl<'a> AstBuilder<'a> {
 
                 match &schema.schema_kind {
                     SchemaKind::Type(ty) => match ty {
-                        Type::Integer(_) => ast::Type::Integer,
+                        Type::Integer(integer) => {
+                            if let Some(max) = integer.maximum {
+                                let max = if integer.exclusive_maximum {
+                                    max - 1
+                                } else {
+                                    max
+                                };
+                                validates.push(ast::Validate::Max(max));
+                            }
+                            if let Some(min) = integer.minimum {
+                                let min = if integer.exclusive_minimum {
+                                    min + 1
+                                } else {
+                                    min
+                                };
+                                validates.push(ast::Validate::Min(min));
+                            }
+
+                            ast::Type::Integer
+                        }
                         _ => unimplemented!(),
                     },
                     SchemaKind::AllOf { .. } => {

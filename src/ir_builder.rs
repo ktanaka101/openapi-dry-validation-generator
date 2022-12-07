@@ -24,15 +24,16 @@ impl IrBuilder {
                 ast::Type::Integer => ir::Type::Integer,
             };
 
+            let validates = self.build_validates(&param.validates);
             let stmt = if param.required {
                 ir::Stmt::Required {
                     name: param.name.clone(),
-                    r#macro: ir::Macro::Value { ty },
+                    r#macro: ir::Macro::Value { ty, validates },
                 }
             } else {
                 ir::Stmt::Optional {
                     name: param.name.clone(),
-                    r#macro: ir::Macro::Value { ty },
+                    r#macro: ir::Macro::Value { ty, validates },
                 }
             };
 
@@ -46,5 +47,15 @@ impl IrBuilder {
                 block: stmts,
             },
         }
+    }
+
+    fn build_validates(&self, validates: &[ast::Validate]) -> Vec<ir::Validate> {
+        validates
+            .iter()
+            .map(|validate| match validate {
+                ast::Validate::Max(max) => ir::Validate::Max(*max),
+                ast::Validate::Min(min) => ir::Validate::Min(*min),
+            })
+            .collect()
     }
 }

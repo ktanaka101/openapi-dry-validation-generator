@@ -12,7 +12,10 @@ pub struct Schema {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Validate {}
+pub enum Validate {
+    Max(i64),
+    Min(i64),
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Type {

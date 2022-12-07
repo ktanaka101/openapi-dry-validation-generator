@@ -55,9 +55,24 @@ fn gen_stmt(stmt: &ir::Stmt) -> String {
 
 fn gen_macro(r#macro: &ir::Macro) -> String {
     match r#macro {
-        ir::Macro::Value { ty } => match ty {
-            ir::Type::Integer => "value(:integer)".to_string(),
+        ir::Macro::Value { ty, validates } => match ty {
+            ir::Type::Integer => format!("value(:integer, {})", gen_validates(validates)),
         },
+    }
+}
+
+fn gen_validates(validates: &[ir::Validate]) -> String {
+    validates
+        .iter()
+        .map(gen_validate)
+        .collect::<Vec<String>>()
+        .join(", ")
+}
+
+fn gen_validate(validate: &ir::Validate) -> String {
+    match validate {
+        ir::Validate::Max(max) => format!("max: {max}"),
+        ir::Validate::Min(min) => format!("min: {min}"),
     }
 }
 
