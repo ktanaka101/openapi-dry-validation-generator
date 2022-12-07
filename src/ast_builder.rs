@@ -39,74 +39,73 @@ impl<'a> AstBuilder<'a> {
             None
         };
 
-        let mut params = vec![];
+        let mut queries = vec![];
         for param in &self.operation.parameters {
             let param = match param {
                 ReferenceOr::Item(param) => param,
                 ReferenceOr::Reference { .. } => unimplemented!(),
             };
 
-            let param = self.build_param(param);
-            params.push(param);
+            match param {
+                Parameter::Query { parameter_data, .. } => {
+                    queries.push(self.build_param(parameter_data));
+                }
+                _ => unimplemented!(),
+            }
         }
 
         AstResult {
             ast: RootSchema {
                 name: ope_id,
-                parameters: params,
+                queries,
             },
             errors: self.errors,
         }
     }
 
-    fn build_param(&mut self, param: &Parameter) -> ast::Schema {
+    fn build_param(&mut self, param: &ParameterData) -> ast::Schema {
         let ty = ast::Type::Integer;
         let validates = vec![];
 
-        match param {
-            Parameter::Query { parameter_data, .. } => {
-                match &parameter_data.format {
-                    ParameterSchemaOrContent::Schema(schema) => {
-                        let schema = match schema {
-                            ReferenceOr::Item(schema) => schema,
-                            ReferenceOr::Reference { .. } => unimplemented!(),
-                        };
-
-                        match &schema.schema_kind {
-                            SchemaKind::Type(ty) => match ty {
-                                Type::Integer(_) => (),
-                                _ => unimplemented!(),
-                            },
-                            SchemaKind::AllOf { .. } => {
-                                self.add_unsupported_error_by_param("AllOf", parameter_data);
-                            }
-                            SchemaKind::OneOf { .. } => {
-                                self.add_unsupported_error_by_param("OneOf", parameter_data);
-                            }
-                            SchemaKind::AnyOf { .. } => {
-                                self.add_unsupported_error_by_param("AnyOf", parameter_data);
-                            }
-                            SchemaKind::Any(_) => {
-                                self.add_unsupported_error_by_param("Any", parameter_data);
-                            }
-                            SchemaKind::Not { .. } => {
-                                self.add_unsupported_error_by_param("Not", parameter_data);
-                            }
-                        }
-                    }
-                    ParameterSchemaOrContent::Content(_) => {
-                        self.add_unsupported_error("Content");
-                    }
+        match &param.format {
+            ParameterSchemaOrContent::Schema(schema) => {
+                let schema = match schema {
+                    ReferenceOr::Item(schema) => schema,
+                    ReferenceOr::Reference { .. } => unimplemented!(),
                 };
 
-                ast::Schema {
-                    required: parameter_data.required,
-                    ty,
-                    name: parameter_data.name.clone(),
-                    validates,
+                match &schema.schema_kind {
+                    SchemaKind::Type(ty) => match ty {
+                        Type::Integer(_) => (),
+                        _ => unimplemented!(),
+                    },
+                    SchemaKind::AllOf { .. } => {
+                        self.add_unsupported_error_by_param("AllOf", param);
+                    }
+                    SchemaKind::OneOf { .. } => {
+                        self.add_unsupported_error_by_param("OneOf", param);
+                    }
+                    SchemaKind::AnyOf { .. } => {
+                        self.add_unsupported_error_by_param("AnyOf", param);
+                    }
+                    SchemaKind::Any(_) => {
+                        self.add_unsupported_error_by_param("Any", param);
+                    }
+                    SchemaKind::Not { .. } => {
+                        self.add_unsupported_error_by_param("Not", param);
+                    }
                 }
             }
-            _ => unimplemented!(),
+            ParameterSchemaOrContent::Content(_) => {
+                self.add_unsupported_error("Content");
+            }
+        };
+
+        ast::Schema {
+            required: param.required,
+            ty,
+            name: param.name.clone(),
+            validates,
         }
     }
 

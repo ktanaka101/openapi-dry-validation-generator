@@ -1,6 +1,6 @@
 pub struct RootSchema {
     pub name: Option<String>,
-    pub parameters: Vec<Schema>,
+    pub queries: Vec<Schema>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

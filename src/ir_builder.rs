@@ -19,7 +19,7 @@ impl IrBuilder {
 
     fn build(&self, ast: &ast::RootSchema) -> IrResult {
         let mut stmts = vec![];
-        for param in &ast.parameters {
+        for param in &ast.queries {
             let ty = match param.ty {
                 ast::Type::Integer => ir::Type::Integer,
             };
