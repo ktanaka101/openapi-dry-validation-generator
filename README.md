@@ -1,11 +1,11 @@
-# openapi-dry-schema-generator
+# openapi-dry-validation-generator
 
 🛠 This repository is WIP.
-Generate dry-schema(ruby) from openapi spec file
+Generate dry-validation(ruby) from openapi spec file
 
 ## Summary
 
-We want to output [dry-schema](https://github.com/dry-rb/dry-schema) from the OpenAPI definition file.
+We want to output [dry-validation](https://github.com/dry-rb/dry-validation) from the OpenAPI definition file.
 I want to be able to delegate the validation of the API to be implemented in Ruby to the OpenAPI definition 🚀.
 
 ## Status
