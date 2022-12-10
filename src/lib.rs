@@ -96,9 +96,9 @@ mod tests {
             }
         "#,
             expect![[r#"
-                TestExample = Dry::Schema::Params do
-                  required(user_id).value(:integer, )
-                end
+              TestExample = Dry::Schema::Params do
+                required(user_id).value(:integer, )
+              end
             "#]],
         );
     }
@@ -119,8 +119,8 @@ mod tests {
             }
         "#,
             expect![[r#"
-                TestExample = Dry::Schema::Params do
-                end
+              TestExample = Dry::Schema::Params do
+              end
             "#]],
         );
 
@@ -138,8 +138,8 @@ mod tests {
             }
         "#,
             expect![[r#"
-                TestExample = Dry::Schema::Params do
-                end
+              TestExample = Dry::Schema::Params do
+              end
             "#]],
         );
 
@@ -157,8 +157,8 @@ mod tests {
             }
         "#,
             expect![[r#"
-                TestExample = Dry::Schema::Params do
-                end
+              TestExample = Dry::Schema::Params do
+              end
             "#]],
         );
     }
@@ -191,9 +191,9 @@ mod tests {
             }
         "#,
             expect![[r#"
-                TestExample = Dry::Schema::Params do
-                  required(user_id).value(:integer, max: 20, min: 10)
-                end
+              TestExample = Dry::Schema::Params do
+                required(user_id).value(:integer, max: 20, min: 10)
+              end
             "#]],
         );
     }
