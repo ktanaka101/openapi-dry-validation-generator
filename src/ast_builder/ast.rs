@@ -20,4 +20,5 @@ pub enum Validate {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Type {
     Integer,
+    String,
 }

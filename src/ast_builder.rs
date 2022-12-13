@@ -97,6 +97,7 @@ impl<'a> AstBuilder<'a> {
 
                             ast::Type::Integer
                         }
+                        Type::String(_) => ast::Type::String,
                         _ => unimplemented!(),
                     },
                     SchemaKind::AllOf { .. } => {

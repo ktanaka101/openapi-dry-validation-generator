@@ -57,6 +57,7 @@ fn gen_macro(r#macro: &ir::Macro) -> String {
     match r#macro {
         ir::Macro::Value { ty, validates } => match ty {
             ir::Type::Integer => format!("value(:integer, {})", gen_validates(validates)),
+            ir::Type::String => format!("value(:string, {})", gen_validates(validates)),
         },
     }
 }

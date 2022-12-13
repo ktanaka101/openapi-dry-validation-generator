@@ -164,6 +164,39 @@ mod tests {
     }
 
     #[test]
+    fn query_string() {
+        check(
+            r#"
+            "/test/example": {
+              "get": {
+                "operationId": "testExample",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "OK"
+                  }
+                }
+              }
+            }
+        "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(user_id).value(:string, )
+                end
+            "#]],
+        );
+    }
+
+    #[test]
     fn query_validates_integer() {
         check(
             r#"

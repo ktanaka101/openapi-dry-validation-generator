@@ -24,4 +24,5 @@ pub enum Validate {
 
 pub enum Type {
     Integer,
+    String,
 }
