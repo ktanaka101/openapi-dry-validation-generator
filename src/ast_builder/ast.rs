@@ -15,6 +15,8 @@ pub struct Schema {
 pub enum Validate {
     Max(i64),
     Min(i64),
+    MaxLength(usize),
+    MinLength(usize),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

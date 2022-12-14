@@ -97,7 +97,16 @@ impl<'a> AstBuilder<'a> {
 
                             ast::Type::Integer
                         }
-                        Type::String(_) => ast::Type::String,
+                        Type::String(string) => {
+                            if let Some(max) = string.max_length {
+                                validates.push(ast::Validate::MaxLength(max));
+                            }
+                            if let Some(min) = string.min_length {
+                                validates.push(ast::Validate::MinLength(min));
+                            }
+
+                            ast::Type::String
+                        }
                         _ => unimplemented!(),
                     },
                     SchemaKind::AllOf { .. } => {

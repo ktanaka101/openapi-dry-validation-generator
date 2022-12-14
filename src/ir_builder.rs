@@ -56,6 +56,8 @@ impl IrBuilder {
             .map(|validate| match validate {
                 ast::Validate::Max(max) => ir::Validate::Max(*max),
                 ast::Validate::Min(min) => ir::Validate::Min(*min),
+                ast::Validate::MaxLength(min) => ir::Validate::MaxLength(*min),
+                ast::Validate::MinLength(min) => ir::Validate::MinLength(*min),
             })
             .collect()
     }
