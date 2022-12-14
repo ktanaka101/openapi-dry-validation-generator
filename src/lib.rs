@@ -45,117 +45,83 @@ mod tests {
 
     use crate::generate_dry_schema;
 
-    fn check(actual: &str, expect: Expect) {
-        let schema = boilerplate(actual);
-        let debug_actual = generate_dry_schema(&schema);
+    fn check_parameters(actual: &str, expect: Expect) {
+        let actual = boilerplate(&format!(
+            r#"
+                "/test/example": {{
+                    "get": {{
+                        "operationId": "testExample",
+                        "parameters": {actual},
+                        "responses": {{
+                            "200": {{
+                                "description": "OK"
+                            }}
+                        }}
+                    }}
+                }}
+            "#
+        ));
+        let debug_actual = generate_dry_schema(&actual);
+        expect.assert_eq(&debug_actual);
+    }
 
+    fn check_operation_id(actual: &str, expect: Expect) {
+        let actual = boilerplate(&format!(
+            r#"
+                "/test/example": {{
+                    "get": {{
+                        "operationId": "{actual}",
+                        "responses": {{
+                            "200": {{
+                                "description": "OK"
+                            }}
+                        }}
+                    }}
+                }}
+            "#
+        ));
+        let debug_actual = generate_dry_schema(&actual);
         expect.assert_eq(&debug_actual);
     }
 
     fn boilerplate(input: &str) -> String {
         format!(
             r#"
-            {{
-              "openapi": "3.0.0",
-              "info": {{
-                "title": "Testing API overview",
-                "version": "1.0.0"
-              }},
-              "paths": {{
-                {}
-              }}
-            }}
-          "#,
+                {{
+                    "openapi": "3.0.0",
+                    "info": {{
+                        "title": "Testing API overview",
+                        "version": "1.0.0"
+                    }},
+                    "paths": {{
+                        {}
+                    }}
+                }}
+            "#,
             input
         )
     }
 
     #[test]
-    fn it_works() {
-        check(
-            r#"
-            "/test/example": {
-              "get": {
-                "operationId": "testExample",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "user_id",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                  "200": {
-                    "description": "OK"
-                  }
-                }
-              }
-            }
-        "#,
-            expect![[r#"
-              TestExample = Dry::Schema::Params do
-                required(user_id).value(:integer, )
-              end
-            "#]],
-        );
-    }
-
-    #[test]
     fn defined_name_is_pascal() {
-        check(
-            r#"
-            "/test/example": {
-              "get": {
-                "operationId": "testExample",
-                "responses": {
-                  "200": {
-                    "description": "OK"
-                  }
-                }
-              }
-            }
-        "#,
+        check_operation_id(
+            "testExample",
             expect![[r#"
               TestExample = Dry::Schema::Params do
               end
             "#]],
         );
 
-        check(
-            r#"
-            "/test/example": {
-              "get": {
-                "operationId": "test-example",
-                "responses": {
-                  "200": {
-                    "description": "OK"
-                  }
-                }
-              }
-            }
-        "#,
+        check_operation_id(
+            "test-example",
             expect![[r#"
               TestExample = Dry::Schema::Params do
               end
             "#]],
         );
 
-        check(
-            r#"
-            "/test/example": {
-              "get": {
-                "operationId": "test_example",
-                "responses": {
-                  "200": {
-                    "description": "OK"
-                  }
-                }
-              }
-            }
-        "#,
+        check_operation_id(
+            "test_example",
             expect![[r#"
               TestExample = Dry::Schema::Params do
               end
@@ -165,12 +131,9 @@ mod tests {
 
     #[test]
     fn query_string() {
-        check(
+        check_parameters(
             r#"
-            "/test/example": {
-              "get": {
-                "operationId": "testExample",
-                "parameters": [
+                [
                     {
                         "in": "query",
                         "name": "user_id",
@@ -179,15 +142,8 @@ mod tests {
                             "type": "string"
                         }
                     }
-                ],
-                "responses": {
-                  "200": {
-                    "description": "OK"
-                  }
-                }
-              }
-            }
-        "#,
+                ]
+            "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(user_id).value(:string, )
@@ -198,12 +154,9 @@ mod tests {
 
     #[test]
     fn query_validates_integer() {
-        check(
+        check_parameters(
             r#"
-            "/test/example": {
-              "get": {
-                "operationId": "testExample",
-                "parameters": [
+                [
                     {
                         "in": "query",
                         "name": "user_id",
@@ -214,15 +167,8 @@ mod tests {
                             "minimum": 10
                         }
                     }
-                ],
-                "responses": {
-                  "200": {
-                    "description": "OK"
-                  }
-                }
-              }
-            }
-        "#,
+                ]
+            "#,
             expect![[r#"
               TestExample = Dry::Schema::Params do
                 required(user_id).value(:integer, max: 20, min: 10)
@@ -233,12 +179,9 @@ mod tests {
 
     #[test]
     fn query_validates_string() {
-        check(
+        check_parameters(
             r#"
-            "/test/example": {
-              "get": {
-                "operationId": "testExample",
-                "parameters": [
+                [
                     {
                         "in": "query",
                         "name": "user_id",
@@ -249,15 +192,8 @@ mod tests {
                             "minLength": 10
                         }
                     }
-                ],
-                "responses": {
-                  "200": {
-                    "description": "OK"
-                  }
-                }
-              }
-            }
-        "#,
+                ]
+            "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(user_id).value(:string, max_size: 20, min_size: 10)
