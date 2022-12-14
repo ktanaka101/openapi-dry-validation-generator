@@ -146,7 +146,7 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(user_id).value(:string, )
+                  required(user_id).value(:string)
                 end
             "#]],
         );
