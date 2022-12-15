@@ -130,14 +130,59 @@ mod tests {
     }
 
     #[test]
-    fn query_string() {
+    fn query_types() {
         check_parameters(
             r#"
                 [
                     {
                         "in": "query",
-                        "name": "user_id",
-                        "required": true,
+                        "name": "string_key",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "integer_key",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "array_key",
+                        "schema": {
+                            "type": "array"
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  optional(:string_key).value(:string)
+                  optional(:integer_key).value(:integer)
+                  optional(:array_key).value(:array)
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_required_and_optional() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "required_key",
+                        "require": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "optional_key",
                         "schema": {
                             "type": "string"
                         }
@@ -146,7 +191,8 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:string)
+                  optional(:required_key).value(:string)
+                  optional(:optional_key).value(:string)
                 end
             "#]],
         );
