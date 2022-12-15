@@ -146,7 +146,7 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(user_id).value(:string)
+                  required(:user_id).value(:string)
                 end
             "#]],
         );
@@ -170,9 +170,9 @@ mod tests {
                 ]
             "#,
             expect![[r#"
-              TestExample = Dry::Schema::Params do
-                required(user_id).value(:integer, max: 20, min: 10)
-              end
+                TestExample = Dry::Schema::Params do
+                  required(:user_id).value(:integer, max: 20, min: 10)
+                end
             "#]],
         );
     }
@@ -196,7 +196,7 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(user_id).value(:string, max_size: 20, min_size: 10)
+                  required(:user_id).value(:string, max_size: 20, min_size: 10)
                 end
             "#]],
         );
@@ -222,7 +222,7 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(user_id).value(:array, max_size: 10, min_size: 5)
+                  required(:user_id).value(:array, max_size: 10, min_size: 5)
                 end
             "#]],
         );

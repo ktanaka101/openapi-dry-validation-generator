@@ -45,10 +45,10 @@ fn gen_schema_class(schema_class: &ir::SchemaClass) -> String {
 fn gen_stmt(stmt: &ir::Stmt) -> String {
     match stmt {
         ir::Stmt::Required { name, r#macro } => {
-            format!("required({name}).{}", gen_macro(r#macro))
+            format!("required(:{name}).{}", gen_macro(r#macro))
         }
         ir::Stmt::Optional { name, r#macro } => {
-            format!("optional({name}).{}", gen_macro(r#macro))
+            format!("optional(:{name}).{}", gen_macro(r#macro))
         }
     }
 }
