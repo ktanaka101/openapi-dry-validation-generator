@@ -59,6 +59,7 @@ fn gen_macro(r#macro: &ir::Macro) -> String {
             let value = match ty {
                 ir::Type::Integer => "value(:integer",
                 ir::Type::String => "value(:string",
+                ir::Type::Array => "value(:array",
             };
 
             if validates.is_empty() {

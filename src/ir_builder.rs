@@ -23,6 +23,7 @@ impl IrBuilder {
             let ty = match param.ty {
                 ast::Type::Integer => ir::Type::Integer,
                 ast::Type::String => ir::Type::String,
+                ast::Type::Array => ir::Type::Array,
             };
 
             let validates = self.build_validates(&param.validates);

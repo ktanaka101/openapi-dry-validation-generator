@@ -201,4 +201,27 @@ mod tests {
             "#]],
         );
     }
+
+    #[test]
+    fn query_array() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "user_id",
+                        "required": true,
+                        "schema": {
+                            "type": "array"
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(user_id).value(:array)
+                end
+            "#]],
+        );
+    }
 }
