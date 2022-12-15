@@ -291,10 +291,12 @@ mod tests {
                         "required": true,
                         "schema": {
                             "type": "array",
-                            "maxItems": 10,
-                            "minItems": 5,
+                            "maxItems": 3,
+                            "minItems": 1,
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 10,
+                                "minLength": 5
                             }
                         }
                     }
@@ -302,7 +304,7 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, max_size: 10, min_size: 5)
+                  required(:user_id).value(:array, max_size: 3, min_size: 1)
                 end
             "#]],
         );
