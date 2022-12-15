@@ -25,5 +25,5 @@ pub enum Validate {
 pub enum Type {
     Integer,
     String,
-    Array,
+    Array { item_schema: Option<Box<Schema>> },
 }

@@ -115,7 +115,7 @@ impl<'a> AstBuilder<'a> {
                                 validates.push(ast::Validate::MinItems(min));
                             }
 
-                            ast::Type::Array
+                            ast::Type::Array { item_schema: None }
                         }
                         _ => unimplemented!(),
                     },
