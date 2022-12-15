@@ -55,19 +55,29 @@ fn gen_stmt(stmt: &ir::Stmt) -> String {
 
 fn gen_macro(r#macro: &ir::Macro) -> String {
     match r#macro {
-        ir::Macro::Value { ty, validates } => {
-            let value = match ty {
-                ir::Type::Integer => "value(:integer",
-                ir::Type::String => "value(:string",
-                ir::Type::Array => "value(:array",
-            };
-
-            if validates.is_empty() {
-                format!("{})", value)
-            } else {
-                format!("{}, {})", value, gen_validates(validates))
+        ir::Macro::Value { ty } => match ty {
+            ir::Type::Integer { validates } => {
+                if validates.is_empty() {
+                    "value(:integer)".to_string()
+                } else {
+                    format!("value(:integer, {})", gen_validates(validates))
+                }
             }
-        }
+            ir::Type::String { validates } => {
+                if validates.is_empty() {
+                    "value(:string)".to_string()
+                } else {
+                    format!("value(:string, {})", gen_validates(validates))
+                }
+            }
+            ir::Type::Array { validates } => {
+                if validates.is_empty() {
+                    "value(:array)".to_string()
+                } else {
+                    format!("value(:array, {})", gen_validates(validates))
+                }
+            }
+        },
     }
 }
 

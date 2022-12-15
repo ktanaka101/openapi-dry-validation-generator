@@ -8,7 +8,6 @@ pub struct Schema {
     pub ty: Type,
     pub required: bool,
     pub name: String,
-    pub validates: Vec<Validate>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -23,7 +22,14 @@ pub enum Validate {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Type {
-    Integer,
-    String,
-    Array { item_schema: Option<Box<Schema>> },
+    Integer {
+        validates: Vec<Validate>,
+    },
+    String {
+        validates: Vec<Validate>,
+    },
+    Array {
+        validates: Vec<Validate>,
+        item_schema: Option<Box<Schema>>,
+    },
 }

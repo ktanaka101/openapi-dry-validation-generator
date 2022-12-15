@@ -20,22 +20,27 @@ impl IrBuilder {
     fn build(&self, ast: &ast::RootSchema) -> IrResult {
         let mut stmts = vec![];
         for param in &ast.queries {
-            let ty = match param.ty {
-                ast::Type::Integer => ir::Type::Integer,
-                ast::Type::String => ir::Type::String,
-                ast::Type::Array { .. } => ir::Type::Array,
+            let ty = match &param.ty {
+                ast::Type::Integer { validates } => ir::Type::Integer {
+                    validates: self.build_validates(validates),
+                },
+                ast::Type::String { validates } => ir::Type::String {
+                    validates: self.build_validates(validates),
+                },
+                ast::Type::Array { validates, .. } => ir::Type::Array {
+                    validates: self.build_validates(validates),
+                },
             };
 
-            let validates = self.build_validates(&param.validates);
             let stmt = if param.required {
                 ir::Stmt::Required {
                     name: param.name.clone(),
-                    r#macro: ir::Macro::Value { ty, validates },
+                    r#macro: ir::Macro::Value { ty },
                 }
             } else {
                 ir::Stmt::Optional {
                     name: param.name.clone(),
-                    r#macro: ir::Macro::Value { ty, validates },
+                    r#macro: ir::Macro::Value { ty },
                 }
             };
 

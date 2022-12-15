@@ -14,7 +14,7 @@ pub enum Stmt {
 }
 
 pub enum Macro {
-    Value { ty: Type, validates: Vec<Validate> },
+    Value { ty: Type },
 }
 
 pub enum Validate {
@@ -25,7 +25,7 @@ pub enum Validate {
 }
 
 pub enum Type {
-    Integer,
-    String,
-    Array,
+    Integer { validates: Vec<Validate> },
+    String { validates: Vec<Validate> },
+    Array { validates: Vec<Validate> },
 }

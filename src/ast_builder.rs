@@ -3,7 +3,8 @@ pub mod ast;
 use ast::RootSchema;
 
 use openapiv3::{
-    Operation, Parameter, ParameterData, ParameterSchemaOrContent, ReferenceOr, SchemaKind, Type,
+    Operation, Parameter, ParameterData, ParameterSchemaOrContent, ReferenceOr, Schema, SchemaKind,
+    Type,
 };
 
 pub fn build(pathname: String, operation: &Operation) -> AstResult {
@@ -66,101 +67,107 @@ impl<'a> AstBuilder<'a> {
     }
 
     fn build_param(&mut self, param: &ParameterData) -> Option<ast::Schema> {
-        let mut validates = vec![];
-
         let ty = match &param.format {
             ParameterSchemaOrContent::Schema(schema) => {
                 let schema = match schema {
                     ReferenceOr::Item(schema) => schema,
                     ReferenceOr::Reference { .. } => unimplemented!(),
                 };
-
-                match &schema.schema_kind {
-                    SchemaKind::Type(ty) => match ty {
-                        Type::Integer(integer) => {
-                            if let Some(max) = integer.maximum {
-                                let max = if integer.exclusive_maximum {
-                                    max - 1
-                                } else {
-                                    max
-                                };
-                                validates.push(ast::Validate::Max(max));
-                            }
-                            if let Some(min) = integer.minimum {
-                                let min = if integer.exclusive_minimum {
-                                    min + 1
-                                } else {
-                                    min
-                                };
-                                validates.push(ast::Validate::Min(min));
-                            }
-
-                            ast::Type::Integer
-                        }
-                        Type::String(string) => {
-                            if let Some(max) = string.max_length {
-                                validates.push(ast::Validate::MaxLength(max));
-                            }
-                            if let Some(min) = string.min_length {
-                                validates.push(ast::Validate::MinLength(min));
-                            }
-
-                            ast::Type::String
-                        }
-                        Type::Array(array) => {
-                            if let Some(max) = array.max_items {
-                                validates.push(ast::Validate::MaxItems(max));
-                            }
-                            if let Some(min) = array.min_items {
-                                validates.push(ast::Validate::MinItems(min));
-                            }
-
-                            ast::Type::Array { item_schema: None }
-                        }
-                        _ => unimplemented!(),
-                    },
-                    SchemaKind::AllOf { .. } => {
-                        self.add_unsupported_error_by_param("AllOf", param);
-                        return None;
-                    }
-                    SchemaKind::OneOf { .. } => {
-                        self.add_unsupported_error_by_param("OneOf", param);
-                        return None;
-                    }
-                    SchemaKind::AnyOf { .. } => {
-                        self.add_unsupported_error_by_param("AnyOf", param);
-                        return None;
-                    }
-                    SchemaKind::Any(_) => {
-                        self.add_unsupported_error_by_param("Any", param);
-                        return None;
-                    }
-                    SchemaKind::Not { .. } => {
-                        self.add_unsupported_error_by_param("Not", param);
-                        return None;
-                    }
-                }
+                self.build_schema(schema, param)
             }
             ParameterSchemaOrContent::Content(_) => {
                 self.add_unsupported_error("Content");
                 return None;
             }
-        };
+        }?;
 
         Some(ast::Schema {
             required: param.required,
             ty,
             name: param.name.clone(),
-            validates,
         })
+    }
+
+    fn build_schema(&mut self, schema: &Schema, ctx: &ParameterData) -> Option<ast::Type> {
+        match &schema.schema_kind {
+            SchemaKind::Type(ty) => match ty {
+                Type::Integer(integer) => {
+                    let mut validates = vec![];
+                    if let Some(max) = integer.maximum {
+                        let max = if integer.exclusive_maximum {
+                            max - 1
+                        } else {
+                            max
+                        };
+                        validates.push(ast::Validate::Max(max));
+                    }
+                    if let Some(min) = integer.minimum {
+                        let min = if integer.exclusive_minimum {
+                            min + 1
+                        } else {
+                            min
+                        };
+                        validates.push(ast::Validate::Min(min));
+                    }
+
+                    Some(ast::Type::Integer { validates })
+                }
+                Type::String(string) => {
+                    let mut validates = vec![];
+                    if let Some(max) = string.max_length {
+                        validates.push(ast::Validate::MaxLength(max));
+                    }
+                    if let Some(min) = string.min_length {
+                        validates.push(ast::Validate::MinLength(min));
+                    }
+
+                    Some(ast::Type::String { validates })
+                }
+                Type::Array(array) => {
+                    let mut validates = vec![];
+                    if let Some(max) = array.max_items {
+                        validates.push(ast::Validate::MaxItems(max));
+                    }
+                    if let Some(min) = array.min_items {
+                        validates.push(ast::Validate::MinItems(min));
+                    }
+
+                    Some(ast::Type::Array {
+                        validates,
+                        item_schema: None,
+                    })
+                }
+                _ => unimplemented!(),
+            },
+            SchemaKind::AllOf { .. } => {
+                self.add_unsupported_error_by_param("AllOf", ctx);
+                None
+            }
+            SchemaKind::OneOf { .. } => {
+                self.add_unsupported_error_by_param("OneOf", ctx);
+                None
+            }
+            SchemaKind::AnyOf { .. } => {
+                self.add_unsupported_error_by_param("AnyOf", ctx);
+                None
+            }
+            SchemaKind::Any(_) => {
+                self.add_unsupported_error_by_param("Any", ctx);
+                None
+            }
+            SchemaKind::Not { .. } => {
+                self.add_unsupported_error_by_param("Not", ctx);
+                None
+            }
+        }
     }
 
     fn add_unsupported_error(&mut self, target: &str) {
         self.add_error(&format!("`{target}` is not supported"));
     }
 
-    fn add_unsupported_error_by_param(&mut self, target: &str, param: &ParameterData) {
-        self.add_error(&format!("`{target}` is not supported in {}", param.name));
+    fn add_unsupported_error_by_param(&mut self, target: &str, ctx: &ParameterData) {
+        self.add_error(&format!("`{target}` is not supported in {}", ctx.name));
     }
 
     fn add_error(&mut self, message: &str) {
