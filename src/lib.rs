@@ -7,7 +7,7 @@ use openapiv3::{OpenAPI, Operation, PathItem, ReferenceOr};
 pub fn generate_dry_schema(text: &str) -> String {
     let mut code = String::new();
 
-    let openapi = serialize(text);
+    let openapi = deserialize(text);
     for (pathname, item) in &openapi.paths.paths {
         let item = match item {
             ReferenceOr::Item(item) => item,
@@ -35,8 +35,14 @@ fn handling_operation(path: &PathItem) -> Vec<&Operation> {
     operations
 }
 
-fn serialize(text: &str) -> OpenAPI {
-    serde_json::from_str(text).expect("Could not deserialize input")
+fn deserialize(text: &str) -> OpenAPI {
+    match serde_json::from_str(text) {
+        Ok(openapi) => openapi,
+        Err(err) => panic!(
+            "Could not deserialize input\nerror line: `{}`\n",
+            text.lines().nth(err.line()).unwrap().trim()
+        ),
+    }
 }
 
 #[cfg(test)]
