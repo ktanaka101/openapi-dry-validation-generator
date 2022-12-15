@@ -107,7 +107,16 @@ impl<'a> AstBuilder<'a> {
 
                             ast::Type::String
                         }
-                        Type::Array(_) => ast::Type::Array,
+                        Type::Array(array) => {
+                            if let Some(max) = array.max_items {
+                                validates.push(ast::Validate::MaxItems(max));
+                            }
+                            if let Some(min) = array.min_items {
+                                validates.push(ast::Validate::MinItems(min));
+                            }
+
+                            ast::Type::Array
+                        }
                         _ => unimplemented!(),
                     },
                     SchemaKind::AllOf { .. } => {

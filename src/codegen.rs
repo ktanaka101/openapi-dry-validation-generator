@@ -85,6 +85,8 @@ fn gen_validate(validate: &ir::Validate) -> String {
         ir::Validate::Min(min) => format!("min: {min}"),
         ir::Validate::MaxLength(max) => format!("max_size: {max}"),
         ir::Validate::MinLength(min) => format!("min_size: {min}"),
+        ir::Validate::MaxSize(max) => format!("max_size: {max}"),
+        ir::Validate::MinSize(min) => format!("min_size: {min}"),
     }
 }
 

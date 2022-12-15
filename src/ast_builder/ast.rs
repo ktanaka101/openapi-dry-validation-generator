@@ -17,6 +17,8 @@ pub enum Validate {
     Min(i64),
     MaxLength(usize),
     MinLength(usize),
+    MaxItems(usize),
+    MinItems(usize),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

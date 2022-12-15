@@ -22,6 +22,8 @@ pub enum Validate {
     Min(i64),
     MaxLength(usize),
     MinLength(usize),
+    MaxSize(usize),
+    MinSize(usize),
 }
 
 pub enum Type {

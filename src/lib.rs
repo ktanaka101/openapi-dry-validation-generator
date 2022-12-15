@@ -203,7 +203,7 @@ mod tests {
     }
 
     #[test]
-    fn query_array() {
+    fn query_validates_array() {
         check_parameters(
             r#"
                 [
@@ -212,14 +212,17 @@ mod tests {
                         "name": "user_id",
                         "required": true,
                         "schema": {
-                            "type": "array"
+                            "type": "array",
+                            "maxItems": 10,
+                            "minItems": 5,
+                            "items": {}
                         }
                     }
                 ]
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(user_id).value(:array)
+                  required(user_id).value(:array, max_size: 10, min_size: 5)
                 end
             "#]],
         );

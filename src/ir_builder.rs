@@ -59,6 +59,8 @@ impl IrBuilder {
                 ast::Validate::Min(min) => ir::Validate::Min(*min),
                 ast::Validate::MaxLength(min) => ir::Validate::MaxLength(*min),
                 ast::Validate::MinLength(min) => ir::Validate::MinLength(*min),
+                ast::Validate::MaxItems(max) => ir::Validate::MaxSize(*max),
+                ast::Validate::MinItems(min) => ir::Validate::MinSize(*min),
             })
             .collect()
     }
