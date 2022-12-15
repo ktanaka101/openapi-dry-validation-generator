@@ -20,8 +20,6 @@ pub enum Macro {
 pub enum Validate {
     Max(i64),
     Min(i64),
-    MaxLength(usize),
-    MinLength(usize),
     MaxSize(usize),
     MinSize(usize),
 }
