@@ -149,6 +149,7 @@ fn gen_schema_ty(ty: &ir::Type) -> String {
 
                 out
             } else {
+                #[allow(clippy::collapsible_else_if)]
                 if validates.is_empty() {
                     "schema(:array)".to_string()
                 } else {
