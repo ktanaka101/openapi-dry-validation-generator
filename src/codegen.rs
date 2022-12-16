@@ -70,14 +70,92 @@ fn gen_macro(r#macro: &ir::Macro) -> String {
                     format!("value(:string, {})", gen_validates(validates))
                 }
             }
-            ir::Type::Array { validates } => {
-                if validates.is_empty() {
+            ir::Type::Array { validates, item } => {
+                let mut out = if validates.is_empty() {
                     "value(:array)".to_string()
                 } else {
                     format!("value(:array, {})", gen_validates(validates))
+                };
+
+                if let Some(item) = item {
+                    out.push_str(&gen_each(item));
                 }
+
+                out
             }
         },
+    }
+}
+
+fn gen_each(each: &ir::Each) -> String {
+    match &each.ty {
+        ir::Type::String { validates } => {
+            if validates.is_empty() {
+                ".each(:string)".to_string()
+            } else {
+                format!(".each(:string, {})", gen_validates(validates))
+            }
+        }
+        ir::Type::Integer { validates } => {
+            if validates.is_empty() {
+                ".each(:integer)".to_string()
+            } else {
+                format!(".each(:integer, {})", gen_validates(validates))
+            }
+        }
+        ir::Type::Array { validates, item } => {
+            let mut out = if validates.is_empty() {
+                ".each(:array)".to_string()
+            } else {
+                format!(".each(:array, {})", gen_validates(validates))
+            };
+
+            if let Some(item) = item {
+                out.push_str(" do\n");
+                out.push_str(&format!("{}\n", gen_schema_ty(&item.ty)));
+                out.push_str("end\n");
+            }
+
+            out
+        }
+    }
+}
+
+fn gen_schema_ty(ty: &ir::Type) -> String {
+    match ty {
+        ir::Type::Integer { validates } => {
+            if validates.is_empty() {
+                "schema(:int?)".to_string()
+            } else {
+                format!("schema(:int?, {})", gen_validates(validates))
+            }
+        }
+        ir::Type::String { validates } => {
+            if validates.is_empty() {
+                "schema(:str?)".to_string()
+            } else {
+                format!("schema(:str?, {})", gen_validates(validates))
+            }
+        }
+        ir::Type::Array { validates, item } => {
+            if let Some(item) = item {
+                let mut out = if validates.is_empty() {
+                    "schema(:array?)".to_string()
+                } else {
+                    format!("schema(:array?, {})", gen_validates(validates))
+                };
+
+                out.push_str(&gen_each(item));
+
+                out
+            } else {
+                if validates.is_empty() {
+                    "schema(:array)".to_string()
+                } else {
+                    format!("schema(:array, {})", gen_validates(validates))
+                }
+            }
+        }
     }
 }
 

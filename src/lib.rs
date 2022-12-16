@@ -304,7 +304,45 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, max_size: 3, min_size: 1)
+                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:string, max_size: 10, min_size: 5)
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_nested_array() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "user_id",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "maxItems": 3,
+                            "minItems": 1,
+                            "items": {
+                                "type": "array",
+                                "maxItems": 6,
+                                "minItems": 2,
+                                "items": {
+                                    "type": "string",
+                                    "maxLength": 20,
+                                    "minLength": 15
+                                }
+                            }
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:array, max_size: 6, min_size: 2) do
+                schema(:str?, max_size: 20, min_size: 15)
+                end
+
                 end
             "#]],
         );

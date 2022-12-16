@@ -25,7 +25,18 @@ pub enum Validate {
 }
 
 pub enum Type {
-    Integer { validates: Vec<Validate> },
-    String { validates: Vec<Validate> },
-    Array { validates: Vec<Validate> },
+    Integer {
+        validates: Vec<Validate>,
+    },
+    String {
+        validates: Vec<Validate>,
+    },
+    Array {
+        validates: Vec<Validate>,
+        item: Option<Box<Each>>,
+    },
+}
+
+pub struct Each {
+    pub ty: Type,
 }

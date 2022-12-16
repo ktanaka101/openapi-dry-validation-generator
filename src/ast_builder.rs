@@ -132,9 +132,19 @@ impl<'a> AstBuilder<'a> {
                         validates.push(ast::Validate::MinItems(min));
                     }
 
+                    let item_ty = if let Some(item_schema) = &array.items {
+                        let schema = match item_schema {
+                            ReferenceOr::Item(schema) => schema,
+                            ReferenceOr::Reference { .. } => unimplemented!(),
+                        };
+                        self.build_schema(schema, ctx)
+                    } else {
+                        None
+                    };
+
                     Some(ast::Type::Array {
                         validates,
-                        item_schema: None,
+                        item_ty: item_ty.map(|ty| ty.into()),
                     })
                 }
                 _ => unimplemented!(),

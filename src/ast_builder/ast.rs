@@ -30,6 +30,6 @@ pub enum Type {
     },
     Array {
         validates: Vec<Validate>,
-        item_schema: Option<Box<Schema>>,
+        item_ty: Option<Box<Type>>,
     },
 }
