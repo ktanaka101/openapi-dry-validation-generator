@@ -143,15 +143,23 @@ fn gen_schema_ty(ty: &ir::Type, nesting: usize) -> String {
         }
         ir::Type::Array { validates, item } => {
             if let Some(item) = item {
-                let mut out = if validates.is_empty() {
-                    "schema(:array?)".to_string()
+                let mut out = "schema(:array?)".to_string();
+                if validates.is_empty() {
+                    out.push_str(&gen_each(item, nesting));
+                    out
                 } else {
-                    format!("schema(:array?, {})", gen_validates(validates))
-                };
-
-                out.push_str(&gen_each(item, nesting));
-
-                out
+                    out.push_str(&format!(
+                        ".each(:array?, {}) do\n",
+                        gen_validates(validates)
+                    ));
+                    out.push_str(&format!(
+                        "{}{}\n",
+                        indent(nesting + 1),
+                        gen_schema_ty(&item.ty, nesting + 1)
+                    ));
+                    out.push_str(&format!("{}end", indent(nesting)));
+                    out
+                }
             } else {
                 #[allow(clippy::collapsible_else_if)]
                 if validates.is_empty() {

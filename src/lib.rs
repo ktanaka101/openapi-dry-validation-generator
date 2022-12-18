@@ -412,7 +412,9 @@ mod tests {
             expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:user_id).value(:array, max_size: 2, min_size: 1).each(:array, max_size: 4, min_size: 3) do
-                    schema(:array?, max_size: 6, min_size: 5).each(:string, max_size: 8, min_size: 7)
+                    schema(:array?).each(:array?, max_size: 6, min_size: 5) do
+                      schema(:str?, max_size: 8, min_size: 7)
+                    end
                   end
                 end
             "#]],
