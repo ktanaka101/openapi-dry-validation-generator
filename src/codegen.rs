@@ -155,9 +155,9 @@ fn gen_schema_ty(ty: &ir::Type, nesting: usize) -> String {
             } else {
                 #[allow(clippy::collapsible_else_if)]
                 if validates.is_empty() {
-                    "schema(:array)".to_string()
+                    "schema(:array?)".to_string()
                 } else {
-                    format!("schema(:array, {})", gen_validates(validates))
+                    format!("schema(:array?, {})", gen_validates(validates))
                 }
             }
         }
