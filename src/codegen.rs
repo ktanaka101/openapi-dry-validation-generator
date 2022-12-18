@@ -28,7 +28,7 @@ fn gen_block(block: &[ir::Stmt], nesting: usize) -> String {
     code.push_str("do\n");
 
     for stmt in block {
-        code.push_str(&format!("{}{}\n", indent(nesting), gen_stmt(stmt)));
+        code.push_str(&format!("{}{}\n", indent(nesting), gen_stmt(stmt, nesting)));
     }
 
     code.push_str(&format!("{}end\n", indent(nesting - 1)));
@@ -42,18 +42,18 @@ fn gen_schema_class(schema_class: &ir::SchemaClass) -> String {
     }
 }
 
-fn gen_stmt(stmt: &ir::Stmt) -> String {
+fn gen_stmt(stmt: &ir::Stmt, nesting: usize) -> String {
     match stmt {
         ir::Stmt::Required { name, r#macro } => {
-            format!("required(:{name}).{}", gen_macro(r#macro))
+            format!("required(:{name}).{}", gen_macro(r#macro, nesting))
         }
         ir::Stmt::Optional { name, r#macro } => {
-            format!("optional(:{name}).{}", gen_macro(r#macro))
+            format!("optional(:{name}).{}", gen_macro(r#macro, nesting))
         }
     }
 }
 
-fn gen_macro(r#macro: &ir::Macro) -> String {
+fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
     match r#macro {
         ir::Macro::Value { ty } => match ty {
             ir::Type::Integer { validates } => {
@@ -78,7 +78,7 @@ fn gen_macro(r#macro: &ir::Macro) -> String {
                 };
 
                 if let Some(item) = item {
-                    out.push_str(&gen_each(item));
+                    out.push_str(&gen_each(item, nesting));
                 }
 
                 out
@@ -87,7 +87,7 @@ fn gen_macro(r#macro: &ir::Macro) -> String {
     }
 }
 
-fn gen_each(each: &ir::Each) -> String {
+fn gen_each(each: &ir::Each, nesting: usize) -> String {
     match &each.ty {
         ir::Type::String { validates } => {
             if validates.is_empty() {
@@ -112,8 +112,12 @@ fn gen_each(each: &ir::Each) -> String {
 
             if let Some(item) = item {
                 out.push_str(" do\n");
-                out.push_str(&format!("{}\n", gen_schema_ty(&item.ty)));
-                out.push_str("end\n");
+                out.push_str(&format!(
+                    "{}{}\n",
+                    indent(nesting + 1),
+                    gen_schema_ty(&item.ty, nesting + 1)
+                ));
+                out.push_str(&format!("{}end", indent(nesting)));
             }
 
             out
@@ -121,7 +125,7 @@ fn gen_each(each: &ir::Each) -> String {
     }
 }
 
-fn gen_schema_ty(ty: &ir::Type) -> String {
+fn gen_schema_ty(ty: &ir::Type, nesting: usize) -> String {
     match ty {
         ir::Type::Integer { validates } => {
             if validates.is_empty() {
@@ -145,7 +149,7 @@ fn gen_schema_ty(ty: &ir::Type) -> String {
                     format!("schema(:array?, {})", gen_validates(validates))
                 };
 
-                out.push_str(&gen_each(item));
+                out.push_str(&gen_each(item, nesting));
 
                 out
             } else {
