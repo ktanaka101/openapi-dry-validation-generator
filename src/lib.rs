@@ -348,6 +348,36 @@ mod tests {
     }
 
     #[test]
+    fn query_no_item_array() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "user_id",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "maxItems": 3,
+                            "minItems": 1,
+                            "items": {
+                                "type": "array",
+                                "maxItems": 6,
+                                "minItems": 2
+                            }
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:array, max_size: 6, min_size: 2)
+                end
+            "#]],
+        );
+    }
+
+    #[test]
     fn indent_on_nested() {
         check_parameters(
             r#"
