@@ -419,5 +419,38 @@ mod tests {
                 end
             "#]],
         );
+
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "user_id",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(:user_id).value(:array).each(:array) do
+                    schema(:array?).each(:array?) do
+                      schema(:str?)
+                    end
+                  end
+                end
+            "#]],
+        );
     }
 }
