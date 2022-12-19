@@ -378,7 +378,43 @@ mod tests {
     }
 
     #[test]
-    fn indent_on_nested() {
+    fn query_nested_array_no_validation() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "user_id",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(:user_id).value(:array).each(:array) do
+                    schema(:array?).each(:array?) do
+                      schema(:str?)
+                    end
+                  end
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_nested_array_with_validation() {
         check_parameters(
             r#"
                 [
@@ -414,39 +450,6 @@ mod tests {
                   required(:user_id).value(:array, max_size: 2, min_size: 1).each(:array, max_size: 4, min_size: 3) do
                     schema(:array?).each(:array?, max_size: 6, min_size: 5) do
                       schema(:str?, max_size: 8, min_size: 7)
-                    end
-                  end
-                end
-            "#]],
-        );
-
-        check_parameters(
-            r#"
-                [
-                    {
-                        "in": "query",
-                        "name": "user_id",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                ]
-            "#,
-            expect![[r#"
-                TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array).each(:array) do
-                    schema(:array?).each(:array?) do
-                      schema(:str?)
                     end
                   end
                 end
