@@ -429,44 +429,24 @@ mod tests {
                 [
                     {
                         "in": "query",
-                        "name": "user_id",
+                        "name": "nested_integer",
                         "required": true,
                         "schema": {
                             "type": "array",
-                            "maxItems": 3,
-                            "minItems": 1,
                             "items": {
                                 "type": "array",
-                                "maxItems": 6,
-                                "minItems": 2,
                                 "items": {
-                                    "type": "string",
-                                    "maxLength": 20,
-                                    "minLength": 15
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
                                 }
                             }
                         }
-                    }
-                ]
-            "#,
-            expect![[r#"
-                TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:array?, max_size: 6, min_size: 2) do
-                    schema(:array?).each(:str?, max_size: 20, min_size: 15)
-                  end
-                end
-            "#]],
-        );
-    }
-
-    #[test]
-    fn query_nested_array_no_validation() {
-        check_parameters(
-            r#"
-                [
+                    },
                     {
                         "in": "query",
-                        "name": "user_id",
+                        "name": "nested_string",
                         "required": true,
                         "schema": {
                             "type": "array",
@@ -480,14 +460,63 @@ mod tests {
                                 }
                             }
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "nested_boolean",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "nested_array",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "array"
+                                    }
+                                }
+                            }
+                        }
                     }
                 ]
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array).each(:array?) do
+                  required(:nested_integer).value(:array).each(:array?) do
+                    schema(:array?).each(:array?) do
+                      schema(:array?).each(:int?)
+                    end
+                  end
+                  required(:nested_string).value(:array).each(:array?) do
                     schema(:array?).each(:array?) do
                       schema(:array?).each(:str?)
+                    end
+                  end
+                  required(:nested_boolean).value(:array).each(:array?) do
+                    schema(:array?).each(:array?) do
+                      schema(:array?).each(:bool?)
+                    end
+                  end
+                  required(:nested_array).value(:array).each(:array?) do
+                    schema(:array?).each(:array?) do
+                      schema(:array?).each(:array?)
                     end
                   end
                 end
