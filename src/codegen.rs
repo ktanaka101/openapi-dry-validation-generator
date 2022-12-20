@@ -10,8 +10,8 @@ pub fn generate(def: &ir::Def) -> String {
         gen_def_name(&def.name),
         gen_schema_class(&def.class)
     ));
-    code.push(' ');
-    code.push_str(&gen_stmts(&def.block, 1));
+    code.push_str(&gen_block(&def.block, 0));
+    code.push('\n');
 
     code
 }
@@ -19,21 +19,6 @@ pub fn generate(def: &ir::Def) -> String {
 fn indent(nesting: usize) -> String {
     const INDENT: &str = "  ";
     INDENT.repeat(nesting)
-}
-
-fn gen_stmts(block: &[ir::Stmt], nesting: usize) -> String {
-    assert!(nesting > 0);
-
-    let mut code = String::new();
-    code.push_str("do\n");
-
-    for stmt in block {
-        code.push_str(&format!("{}{}\n", indent(nesting), gen_stmt(stmt, nesting)));
-    }
-
-    code.push_str(&format!("{}end\n", indent(nesting - 1)));
-
-    code
 }
 
 fn gen_schema_class(schema_class: &ir::SchemaClass) -> String {
@@ -128,9 +113,7 @@ fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
                 };
 
                 if let Some(block) = block {
-                    out.push_str(" do\n");
-                    out.push_str(&gen_block(block, nesting + 1));
-                    out.push_str(&format!("{}end", indent(nesting)));
+                    out.push_str(&gen_block(block, nesting));
                 }
 
                 out
@@ -140,14 +123,15 @@ fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
 }
 
 fn gen_block(block: &ir::Block, nesting: usize) -> String {
-    let mut out = "".to_string();
+    let mut out = " do\n".to_string();
     for stmt in &block.stmts {
         out.push_str(&format!(
             "{}{}\n",
-            indent(nesting),
-            &gen_stmt(stmt, nesting)
+            indent(nesting + 1),
+            &gen_stmt(stmt, nesting + 1)
         ));
     }
+    out.push_str(&format!("{}end", indent(nesting)));
 
     out
 }

@@ -77,7 +77,7 @@ impl IrBuilder {
             ir: ir::Def {
                 name: ast.name.clone().unwrap(),
                 class: ir::SchemaClass::Params,
-                block: stmts,
+                block: ir::Block::new(stmts),
             },
         }
     }

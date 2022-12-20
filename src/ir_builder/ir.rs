@@ -1,7 +1,7 @@
 pub struct Def {
     pub name: String,
     pub class: SchemaClass,
-    pub block: Vec<Stmt>,
+    pub block: Block,
 }
 
 pub enum SchemaClass {
@@ -31,6 +31,10 @@ pub struct Block {
     pub stmts: Vec<Stmt>,
 }
 impl Block {
+    pub fn new(stmts: Vec<Stmt>) -> Self {
+        Self { stmts }
+    }
+
     pub fn new_single_stmt(stmt: Stmt) -> Self {
         Self { stmts: vec![stmt] }
     }
