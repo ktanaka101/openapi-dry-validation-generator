@@ -55,11 +55,13 @@ fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
             validates,
             r#macro,
         } => {
+            const LITERAL: &str = ".value";
             let mut out = if validates.is_empty() {
-                format!(".value(:{})", gen_type_spec(ty))
+                format!("{}(:{})", LITERAL, gen_type_spec(ty))
             } else {
                 format!(
-                    ".value(:{}, {})",
+                    "{}(:{}, {})",
+                    LITERAL,
                     gen_type_spec(ty),
                     gen_validates(validates)
                 )
@@ -74,36 +76,41 @@ fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
             ty,
             validates,
             block,
-        } => match ty {
-            ir::Type::String | ir::Type::Integer => {
-                if validates.is_empty() {
-                    format!(".each(:{})", gen_type_predicate(ty))
-                } else {
-                    format!(
-                        ".each(:{}, {})",
-                        gen_type_predicate(ty),
-                        gen_validates(validates)
-                    )
+        } => {
+            const LITERAL: &str = ".each";
+            match ty {
+                ir::Type::String | ir::Type::Integer => {
+                    if validates.is_empty() {
+                        format!("{}(:{})", LITERAL, gen_type_predicate(ty))
+                    } else {
+                        format!(
+                            "{}(:{}, {})",
+                            LITERAL,
+                            gen_type_predicate(ty),
+                            gen_validates(validates)
+                        )
+                    }
+                }
+                ir::Type::Array => {
+                    let mut out = if validates.is_empty() {
+                        format!("{}(:{})", LITERAL, gen_type_predicate(ty))
+                    } else {
+                        format!(
+                            "{}(:{}, {})",
+                            LITERAL,
+                            gen_type_predicate(ty),
+                            gen_validates(validates)
+                        )
+                    };
+
+                    if let Some(block) = block {
+                        out.push_str(&gen_block(block, nesting));
+                    }
+
+                    out
                 }
             }
-            ir::Type::Array => {
-                let mut out = if validates.is_empty() {
-                    format!(".each(:{})", gen_type_predicate(ty))
-                } else {
-                    format!(
-                        ".each(:{}, {})",
-                        gen_type_predicate(ty),
-                        gen_validates(validates)
-                    )
-                };
-
-                if let Some(block) = block {
-                    out.push_str(&gen_block(block, nesting));
-                }
-
-                out
-            }
-        },
+        }
     }
 }
 
