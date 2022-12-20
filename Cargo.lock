@@ -69,7 +69,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "86f0b0d4bf799edbc74508c1e8bf170ff5f41238e5f8225603ca7caaae2b7860"
 
 [[package]]
-name = "openapi-dry-schema-generator"
+name = "openapi-dry-validation-generator"
 version = "0.1.0"
 dependencies = [
  "convert_case",

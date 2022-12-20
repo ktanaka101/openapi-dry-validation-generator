@@ -2,7 +2,7 @@
 mod tests {
     use expect_test::{expect, Expect};
 
-    use openapi_dry_schema_generator::generate_dry_schema;
+    use openapi_dry_validation_generator::generate_dry_validation;
 
     fn check_parameters(actual: &str, expect: Expect) {
         let actual = boilerplate(&format!(
@@ -20,7 +20,7 @@ mod tests {
                 }}
             "#
         ));
-        let debug_actual = generate_dry_schema(&actual);
+        let debug_actual = generate_dry_validation(&actual);
         expect.assert_eq(&debug_actual);
     }
 
@@ -39,7 +39,7 @@ mod tests {
                 }}
             "#
         ));
-        let debug_actual = generate_dry_schema(&actual);
+        let debug_actual = generate_dry_validation(&actual);
         expect.assert_eq(&debug_actual);
     }
 

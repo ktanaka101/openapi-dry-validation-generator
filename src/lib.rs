@@ -4,7 +4,7 @@ mod ir_builder;
 
 use openapiv3::{OpenAPI, Operation, PathItem, ReferenceOr};
 
-pub fn generate_dry_schema(text: &str) -> String {
+pub fn generate_dry_validation(text: &str) -> String {
     let mut code = String::new();
 
     let openapi = deserialize(text);
