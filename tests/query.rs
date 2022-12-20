@@ -227,8 +227,8 @@ mod tests {
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "maximum": 20,
-                            "minimum": 10
+                            "minimum": 10,
+                            "maximum": 20
                         }
                     }
                 ]
@@ -252,8 +252,8 @@ mod tests {
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "maxLength": 20,
-                            "minLength": 10
+                            "minLength": 10,
+                            "maxLength": 20
                         }
                     }
                 ]
@@ -277,8 +277,8 @@ mod tests {
                         "required": true,
                         "schema": {
                             "type": "array",
-                            "maxItems": 10,
                             "minItems": 5,
+                            "maxItems": 10,
                             "items": {}
                         }
                     }
@@ -360,12 +360,12 @@ mod tests {
                         "name": "integer_item",
                         "schema": {
                             "type": "array",
-                            "maxItems": 2,
                             "minItems": 1,
+                            "maxItems": 2,
                             "items": {
                                 "type": "integer",
-                                "maximum": 4,
-                                "minimum": 3
+                                "minimum": 3,
+                                "maximum": 4
                             }
                         }
                     },
@@ -374,12 +374,12 @@ mod tests {
                         "name": "string_item",
                         "schema": {
                             "type": "array",
-                            "maxItems": 6,
                             "minItems": 5,
+                            "maxItems": 6,
                             "items": {
                                 "type": "string",
-                                "maxLength": 8,
-                                "minLength": 7
+                                "minLength": 7,
+                                "maxLength": 8
                             }
                         }
                     },
@@ -388,8 +388,8 @@ mod tests {
                         "name": "boolean_item",
                         "schema": {
                             "type": "array",
-                            "maxItems": 10,
                             "minItems": 9,
+                            "maxItems": 10,
                             "items": {
                                 "type": "boolean"
                             }
@@ -400,12 +400,12 @@ mod tests {
                         "name": "array_item",
                         "schema": {
                             "type": "array",
-                            "maxItems": 12,
                             "minItems": 11,
+                            "maxItems": 12,
                             "items": {
                                 "type": "array",
-                                "maxItems": 14,
-                                "minItems": 13
+                                "minItems": 13,
+                                "maxItems": 14
                             }
                         }
                     }
@@ -535,20 +535,20 @@ mod tests {
                         "required": true,
                         "schema": {
                             "type": "array",
-                            "maxItems": 2,
                             "minItems": 1,
+                            "maxItems": 2,
                             "items": {
                                 "type": "array",
-                                "maxItems": 4,
                                 "minItems": 3,
+                                "maxItems": 4,
                                 "items": {
                                     "type": "array",
-                                    "maxItems": 6,
                                     "minItems": 5,
+                                    "maxItems": 6,
                                     "items": {
                                         "type": "integer",
-                                        "maximum": 8,
-                                        "minimum": 7
+                                        "minimum": 7,
+                                        "maximum": 8
                                     }
                                 }
                             }
@@ -560,20 +560,20 @@ mod tests {
                         "required": true,
                         "schema": {
                             "type": "array",
-                            "maxItems": 10,
                             "minItems": 9,
+                            "maxItems": 10,
                             "items": {
                                 "type": "array",
-                                "maxItems": 12,
                                 "minItems": 11,
+                                "maxItems": 12,
                                 "items": {
                                     "type": "array",
-                                    "maxItems": 14,
                                     "minItems": 13,
+                                    "maxItems": 14,
                                     "items": {
                                         "type": "string",
-                                        "maxLength": 16,
-                                        "minLength": 15
+                                        "minLength": 15,
+                                        "maxLength": 16
                                     }
                                 }
                             }
@@ -585,16 +585,16 @@ mod tests {
                         "required": true,
                         "schema": {
                             "type": "array",
-                            "maxItems": 18,
                             "minItems": 17,
+                            "maxItems": 18,
                             "items": {
                                 "type": "array",
-                                "maxItems": 20,
                                 "minItems": 19,
+                                "maxItems": 20,
                                 "items": {
                                     "type": "array",
-                                    "maxItems": 22,
                                     "minItems": 21,
+                                    "maxItems": 22,
                                     "items": {
                                         "type": "boolean"
                                     }
@@ -608,20 +608,20 @@ mod tests {
                         "required": true,
                         "schema": {
                             "type": "array",
-                            "maxItems": 24,
                             "minItems": 23,
+                            "maxItems": 24,
                             "items": {
                                 "type": "array",
-                                "maxItems": 26,
                                 "minItems": 25,
+                                "maxItems": 26,
                                 "items": {
                                     "type": "array",
-                                    "maxItems": 28,
                                     "minItems": 27,
+                                    "maxItems": 28,
                                     "items": {
                                         "type": "array",
-                                        "maxItems": 30,
-                                        "minItems": 29
+                                        "minItems": 29,
+                                        "maxItems": 30
                                     }
                                 }
                             }
