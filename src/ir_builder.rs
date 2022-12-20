@@ -98,13 +98,13 @@ impl IrBuilder {
 
     fn build_item(&self, item: &ast::Type) -> ir::Macro {
         match &item {
-            ast::Type::String { validates } => ir::Macro::Each {
-                ty: ir::Type::String,
+            ast::Type::Integer { validates } => ir::Macro::Each {
+                ty: ir::Type::Integer,
                 validates: self.build_validates(validates),
                 block: None,
             },
-            ast::Type::Integer { validates } => ir::Macro::Each {
-                ty: ir::Type::Integer,
+            ast::Type::String { validates } => ir::Macro::Each {
+                ty: ir::Type::String,
                 validates: self.build_validates(validates),
                 block: None,
             },

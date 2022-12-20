@@ -79,7 +79,7 @@ fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
         } => {
             const LITERAL: &str = ".each";
             match ty {
-                ir::Type::String | ir::Type::Integer | ir::Type::Boolean => {
+                ir::Type::Integer | ir::Type::String | ir::Type::Boolean => {
                     if validates.is_empty() {
                         format!("{}(:{})", LITERAL, gen_type_predicate(ty))
                     } else {
@@ -148,8 +148,8 @@ fn gen_schema_class(schema_class: &ir::SchemaClass) -> String {
 
 fn gen_type_spec(ty: &ir::Type) -> String {
     match ty {
-        ir::Type::String => "string",
         ir::Type::Integer => "integer",
+        ir::Type::String => "string",
         ir::Type::Boolean => "boolean",
         ir::Type::Array => "array",
     }
@@ -158,8 +158,8 @@ fn gen_type_spec(ty: &ir::Type) -> String {
 
 fn gen_type_predicate(ty: &ir::Type) -> String {
     match ty {
-        ir::Type::String => "str?",
         ir::Type::Integer => "int?",
+        ir::Type::String => "str?",
         ir::Type::Boolean => "bool?",
         ir::Type::Array => "array?",
     }
