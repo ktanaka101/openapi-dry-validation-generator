@@ -28,6 +28,7 @@ pub enum Type {
     String {
         validates: Vec<Validate>,
     },
+    Boolean,
     Array {
         validates: Vec<Validate>,
         item_ty: Option<Box<Type>>,

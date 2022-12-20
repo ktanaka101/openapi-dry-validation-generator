@@ -49,6 +49,20 @@ impl IrBuilder {
                         ir::Stmt::Optional { name, r#macro }
                     }
                 }
+                ast::Type::Boolean => {
+                    let name = param.name.clone();
+                    let r#macro = ir::Macro::Value {
+                        ty: ir::Type::Boolean,
+                        validates: vec![],
+                        r#macro: None,
+                    };
+
+                    if param.required {
+                        ir::Stmt::Required { name, r#macro }
+                    } else {
+                        ir::Stmt::Optional { name, r#macro }
+                    }
+                }
                 ast::Type::Array { validates, item_ty } => {
                     let name = param.name.clone();
                     let r#macro = ir::Macro::Value {
@@ -92,6 +106,11 @@ impl IrBuilder {
             ast::Type::Integer { validates } => ir::Macro::Each {
                 ty: ir::Type::Integer,
                 validates: self.build_validates(validates),
+                block: None,
+            },
+            ast::Type::Boolean => ir::Macro::Each {
+                ty: ir::Type::Boolean,
+                validates: vec![],
                 block: None,
             },
             ast::Type::Array { validates, item_ty } => ir::Macro::Each {

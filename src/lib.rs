@@ -156,6 +156,13 @@ mod tests {
                     },
                     {
                         "in": "query",
+                        "name": "boolean_key",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "in": "query",
                         "name": "array_key",
                         "schema": {
                             "type": "array"
@@ -167,6 +174,7 @@ mod tests {
                 TestExample = Dry::Schema::Params do
                   optional(:string_key).value(:string)
                   optional(:integer_key).value(:integer)
+                  optional(:boolean_key).value(:boolean)
                   optional(:array_key).value(:array)
                 end
             "#]],

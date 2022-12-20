@@ -123,6 +123,7 @@ impl<'a> AstBuilder<'a> {
 
                     Some(ast::Type::String { validates })
                 }
+                Type::Boolean {} => Some(ast::Type::Boolean),
                 Type::Array(array) => {
                     let mut validates = vec![];
                     if let Some(max) = array.max_items {
