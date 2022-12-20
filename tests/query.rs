@@ -235,7 +235,7 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:integer, max: 20, min: 10)
+                  required(:user_id).value(:integer, min: 10, max: 20)
                 end
             "#]],
         );
@@ -260,7 +260,7 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:string, max_size: 20, min_size: 10)
+                  required(:user_id).value(:string, min_size: 10, max_size: 20)
                 end
             "#]],
         );
@@ -286,7 +286,7 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, max_size: 10, min_size: 5)
+                  required(:user_id).value(:array, min_size: 5, max_size: 10)
                 end
             "#]],
         );
@@ -413,10 +413,10 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  optional(:integer_item).value(:array, max_size: 2, min_size: 1).each(:int?, max: 4, min: 3)
-                  optional(:string_item).value(:array, max_size: 6, min_size: 5).each(:str?, max_size: 8, min_size: 7)
-                  optional(:boolean_item).value(:array, max_size: 10, min_size: 9).each(:bool?)
-                  optional(:array_item).value(:array, max_size: 12, min_size: 11).each(:array?, max_size: 14, min_size: 13)
+                  optional(:integer_item).value(:array, min_size: 1, max_size: 2).each(:int?, min: 3, max: 4)
+                  optional(:string_item).value(:array, min_size: 5, max_size: 6).each(:str?, min_size: 7, max_size: 8)
+                  optional(:boolean_item).value(:array, min_size: 9, max_size: 10).each(:bool?)
+                  optional(:array_item).value(:array, min_size: 11, max_size: 12).each(:array?, min_size: 13, max_size: 14)
                 end
             "#]],
         );
@@ -631,24 +631,24 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:nested_integer).value(:array, max_size: 2, min_size: 1).each(:array?, max_size: 4, min_size: 3) do
-                    schema(:array?).each(:array?, max_size: 6, min_size: 5) do
-                      schema(:array?).each(:int?, max: 8, min: 7)
+                  required(:nested_integer).value(:array, min_size: 1, max_size: 2).each(:array?, min_size: 3, max_size: 4) do
+                    schema(:array?).each(:array?, min_size: 5, max_size: 6) do
+                      schema(:array?).each(:int?, min: 7, max: 8)
                     end
                   end
-                  required(:nested_string).value(:array, max_size: 10, min_size: 9).each(:array?, max_size: 12, min_size: 11) do
-                    schema(:array?).each(:array?, max_size: 14, min_size: 13) do
-                      schema(:array?).each(:str?, max_size: 16, min_size: 15)
+                  required(:nested_string).value(:array, min_size: 9, max_size: 10).each(:array?, min_size: 11, max_size: 12) do
+                    schema(:array?).each(:array?, min_size: 13, max_size: 14) do
+                      schema(:array?).each(:str?, min_size: 15, max_size: 16)
                     end
                   end
-                  required(:nested_boolean).value(:array, max_size: 18, min_size: 17).each(:array?, max_size: 20, min_size: 19) do
-                    schema(:array?).each(:array?, max_size: 22, min_size: 21) do
+                  required(:nested_boolean).value(:array, min_size: 17, max_size: 18).each(:array?, min_size: 19, max_size: 20) do
+                    schema(:array?).each(:array?, min_size: 21, max_size: 22) do
                       schema(:array?).each(:bool?)
                     end
                   end
-                  required(:nested_array).value(:array, max_size: 24, min_size: 23).each(:array?, max_size: 26, min_size: 25) do
-                    schema(:array?).each(:array?, max_size: 28, min_size: 27) do
-                      schema(:array?).each(:array?, max_size: 30, min_size: 29)
+                  required(:nested_array).value(:array, min_size: 23, max_size: 24).each(:array?, min_size: 25, max_size: 26) do
+                    schema(:array?).each(:array?, min_size: 27, max_size: 28) do
+                      schema(:array?).each(:array?, min_size: 29, max_size: 30)
                     end
                   end
                 end

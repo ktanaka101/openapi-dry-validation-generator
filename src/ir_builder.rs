@@ -129,7 +129,7 @@ impl IrBuilder {
     }
 
     fn build_validates(&self, validates: &[ast::Validate]) -> Vec<ir::Validate> {
-        validates
+        let mut validates = validates
             .iter()
             .map(|validate| match validate {
                 ast::Validate::Max(max) => ir::Validate::Max(*max),
@@ -141,6 +141,14 @@ impl IrBuilder {
                     ir::Validate::MinSize(*min)
                 }
             })
-            .collect()
+            .collect::<Vec<_>>();
+        validates.sort_by_cached_key(|validate| match validate {
+            ir::Validate::Min(_) => 0,
+            ir::Validate::MinSize(_) => 1,
+            ir::Validate::Max(_) => 2,
+            ir::Validate::MaxSize(_) => 3,
+        });
+
+        validates
     }
 }
