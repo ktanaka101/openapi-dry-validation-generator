@@ -293,22 +293,47 @@ mod tests {
     }
 
     #[test]
-    fn query_item_schema_in_array() {
+    fn query_item_types_in_array() {
         check_parameters(
             r#"
                 [
                     {
                         "in": "query",
-                        "name": "user_id",
-                        "required": true,
+                        "name": "integer_item",
                         "schema": {
                             "type": "array",
-                            "maxItems": 3,
-                            "minItems": 1,
                             "items": {
-                                "type": "string",
-                                "maxLength": 10,
-                                "minLength": 5
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "string_item",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "boolean_item",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "array_item",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array"
                             }
                         }
                     }
@@ -316,7 +341,82 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:str?, max_size: 10, min_size: 5)
+                  optional(:integer_item).value(:array).each(:int?)
+                  optional(:string_item).value(:array).each(:str?)
+                  optional(:boolean_item).value(:array).each(:bool?)
+                  optional(:array_item).value(:array).each(:array?)
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_item_types_with_validation_in_array() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "integer_item",
+                        "schema": {
+                            "type": "array",
+                            "maxItems": 2,
+                            "minItems": 1,
+                            "items": {
+                                "type": "integer",
+                                "maximum": 4,
+                                "minimum": 3
+                            }
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "string_item",
+                        "schema": {
+                            "type": "array",
+                            "maxItems": 6,
+                            "minItems": 5,
+                            "items": {
+                                "type": "string",
+                                "maxLength": 8,
+                                "minLength": 7
+                            }
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "boolean_item",
+                        "schema": {
+                            "type": "array",
+                            "maxItems": 10,
+                            "minItems": 9,
+                            "items": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "array_item",
+                        "schema": {
+                            "type": "array",
+                            "maxItems": 12,
+                            "minItems": 11,
+                            "items": {
+                                "type": "array",
+                                "maxItems": 14,
+                                "minItems": 13
+                            }
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  optional(:integer_item).value(:array, max_size: 2, min_size: 1).each(:int?, max: 4, min: 3)
+                  optional(:string_item).value(:array, max_size: 6, min_size: 5).each(:str?, max_size: 8, min_size: 7)
+                  optional(:boolean_item).value(:array, max_size: 10, min_size: 9).each(:bool?)
+                  optional(:array_item).value(:array, max_size: 12, min_size: 11).each(:array?, max_size: 14, min_size: 13)
                 end
             "#]],
         );
@@ -354,36 +454,6 @@ mod tests {
                   required(:user_id).value(:array, max_size: 3, min_size: 1).each(:array?, max_size: 6, min_size: 2) do
                     schema(:array?).each(:str?, max_size: 20, min_size: 15)
                   end
-                end
-            "#]],
-        );
-    }
-
-    #[test]
-    fn query_no_item_array() {
-        check_parameters(
-            r#"
-                [
-                    {
-                        "in": "query",
-                        "name": "user_id",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "maxItems": 3,
-                            "minItems": 1,
-                            "items": {
-                                "type": "array",
-                                "maxItems": 6,
-                                "minItems": 2
-                            }
-                        }
-                    }
-                ]
-            "#,
-            expect![[r#"
-                TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:array?, max_size: 6, min_size: 2)
                 end
             "#]],
         );
