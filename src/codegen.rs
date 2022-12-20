@@ -16,15 +16,18 @@ pub fn generate(def: &ir::Def) -> String {
     code
 }
 
-fn indent(nesting: usize) -> String {
-    const INDENT: &str = "  ";
-    INDENT.repeat(nesting)
-}
-
-fn gen_schema_class(schema_class: &ir::SchemaClass) -> String {
-    match schema_class {
-        ir::SchemaClass::Params => "Dry::Schema::Params".to_string(),
+fn gen_block(block: &ir::Block, nesting: usize) -> String {
+    let mut out = " do\n".to_string();
+    for stmt in &block.stmts {
+        out.push_str(&format!(
+            "{}{}\n",
+            indent(nesting + 1),
+            &gen_stmt(stmt, nesting + 1)
+        ));
     }
+    out.push_str(&format!("{}end", indent(nesting)));
+
+    out
 }
 
 fn gen_stmt(stmt: &ir::Stmt, nesting: usize) -> String {
@@ -43,24 +46,6 @@ fn gen_stmt(stmt: &ir::Stmt, nesting: usize) -> String {
             )
         }
     }
-}
-
-fn gen_type_spec(ty: &ir::Type) -> String {
-    match ty {
-        ir::Type::String => "string",
-        ir::Type::Integer => "integer",
-        ir::Type::Array => "array",
-    }
-    .to_string()
-}
-
-fn gen_type_predicate(ty: &ir::Type) -> String {
-    match ty {
-        ir::Type::String => "str?",
-        ir::Type::Integer => "int?",
-        ir::Type::Array => "array?",
-    }
-    .to_string()
 }
 
 fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
@@ -122,20 +107,6 @@ fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
     }
 }
 
-fn gen_block(block: &ir::Block, nesting: usize) -> String {
-    let mut out = " do\n".to_string();
-    for stmt in &block.stmts {
-        out.push_str(&format!(
-            "{}{}\n",
-            indent(nesting + 1),
-            &gen_stmt(stmt, nesting + 1)
-        ));
-    }
-    out.push_str(&format!("{}end", indent(nesting)));
-
-    out
-}
-
 fn gen_validates(validates: &[ir::Validate]) -> String {
     validates
         .iter()
@@ -153,6 +124,35 @@ fn gen_validate(validate: &ir::Validate) -> String {
     }
 }
 
+fn indent(nesting: usize) -> String {
+    const INDENT: &str = "  ";
+    INDENT.repeat(nesting)
+}
+
 fn gen_def_name(name: &str) -> String {
     name.to_case(Case::Pascal)
+}
+
+fn gen_schema_class(schema_class: &ir::SchemaClass) -> String {
+    match schema_class {
+        ir::SchemaClass::Params => "Dry::Schema::Params".to_string(),
+    }
+}
+
+fn gen_type_spec(ty: &ir::Type) -> String {
+    match ty {
+        ir::Type::String => "string",
+        ir::Type::Integer => "integer",
+        ir::Type::Array => "array",
+    }
+    .to_string()
+}
+
+fn gen_type_predicate(ty: &ir::Type) -> String {
+    match ty {
+        ir::Type::String => "str?",
+        ir::Type::Integer => "int?",
+        ir::Type::Array => "array?",
+    }
+    .to_string()
 }
