@@ -20,36 +20,53 @@ impl IrBuilder {
     fn build(&self, ast: &ast::RootSchema) -> IrResult {
         let mut stmts = vec![];
         for param in &ast.queries {
-            let ty = match &param.ty {
-                ast::Type::Integer { validates } => ir::Type::Integer {
-                    validates: self.build_validates(validates),
-                },
-                ast::Type::String { validates } => ir::Type::String {
-                    validates: self.build_validates(validates),
-                },
-                ast::Type::Array { validates, item_ty } => {
-                    let each = if let Some(item) = item_ty {
-                        let item = *item.to_owned();
-                        Some(Box::new(self.build_item(&item)))
-                    } else {
-                        None
-                    };
-                    ir::Type::Array {
+            let stmt = match &param.ty {
+                ast::Type::Integer { validates } => {
+                    let name = param.name.clone();
+                    let r#macro = ir::Macro::Value {
+                        ty: ir::Type::Integer,
                         validates: self.build_validates(validates),
-                        item: each,
+                        r#macro: None,
+                    };
+
+                    if param.required {
+                        ir::Stmt::Required { name, r#macro }
+                    } else {
+                        ir::Stmt::Optional { name, r#macro }
                     }
                 }
-            };
+                ast::Type::String { validates } => {
+                    let name = param.name.clone();
+                    let r#macro = ir::Macro::Value {
+                        ty: ir::Type::String,
+                        validates: self.build_validates(validates),
+                        r#macro: None,
+                    };
 
-            let stmt = if param.required {
-                ir::Stmt::Required {
-                    name: param.name.clone(),
-                    r#macro: ir::Macro::Value { ty },
+                    if param.required {
+                        ir::Stmt::Required { name, r#macro }
+                    } else {
+                        ir::Stmt::Optional { name, r#macro }
+                    }
                 }
-            } else {
-                ir::Stmt::Optional {
-                    name: param.name.clone(),
-                    r#macro: ir::Macro::Value { ty },
+                ast::Type::Array { validates, item_ty } => {
+                    let name = param.name.clone();
+                    let r#macro = ir::Macro::Value {
+                        ty: ir::Type::Array,
+                        validates: self.build_validates(validates),
+                        r#macro: if let Some(item) = item_ty {
+                            let item = *item.to_owned();
+                            Some(Box::new(self.build_item(&item)))
+                        } else {
+                            None
+                        },
+                    };
+
+                    if param.required {
+                        ir::Stmt::Required { name, r#macro }
+                    } else {
+                        ir::Stmt::Optional { name, r#macro }
+                    }
                 }
             };
 
@@ -65,23 +82,29 @@ impl IrBuilder {
         }
     }
 
-    fn build_item(&self, item: &ast::Type) -> ir::Each {
+    fn build_item(&self, item: &ast::Type) -> ir::Macro {
         match &item {
-            ast::Type::String { validates } => ir::Each {
-                ty: ir::Type::String {
-                    validates: self.build_validates(validates),
-                },
+            ast::Type::String { validates } => ir::Macro::Each {
+                ty: ir::Type::String,
+                validates: self.build_validates(validates),
+                block: None,
             },
-            ast::Type::Integer { validates } => ir::Each {
-                ty: ir::Type::Integer {
-                    validates: self.build_validates(validates),
-                },
+            ast::Type::Integer { validates } => ir::Macro::Each {
+                ty: ir::Type::Integer,
+                validates: self.build_validates(validates),
+                block: None,
             },
-            ast::Type::Array { validates, item_ty } => ir::Each {
-                ty: ir::Type::Array {
-                    validates: self.build_validates(validates),
-                    item: item_ty.clone().map(|item| Box::new(self.build_item(&item))),
-                },
+            ast::Type::Array { validates, item_ty } => ir::Macro::Each {
+                ty: ir::Type::Array,
+                validates: self.build_validates(validates),
+                block: item_ty.clone().map(|item_ty| {
+                    ir::Block::new_single_stmt({
+                        ir::Stmt::Schema {
+                            ty: ir::Type::Array,
+                            r#macro: self.build_item(&item_ty),
+                        }
+                    })
+                }),
             },
         }
     }

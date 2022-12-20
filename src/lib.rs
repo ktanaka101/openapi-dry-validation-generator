@@ -304,7 +304,7 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:string, max_size: 10, min_size: 5)
+                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:str?, max_size: 10, min_size: 5)
                 end
             "#]],
         );
@@ -339,8 +339,8 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:array, max_size: 6, min_size: 2) do
-                    schema(:str?, max_size: 20, min_size: 15)
+                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:array?, max_size: 6, min_size: 2) do
+                    schema(:array?).each(:str?, max_size: 20, min_size: 15)
                   end
                 end
             "#]],
@@ -371,7 +371,7 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:array, max_size: 6, min_size: 2)
+                  required(:user_id).value(:array, max_size: 3, min_size: 1).each(:array?, max_size: 6, min_size: 2)
                 end
             "#]],
         );
@@ -403,9 +403,9 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array).each(:array) do
+                  required(:user_id).value(:array).each(:array?) do
                     schema(:array?).each(:array?) do
-                      schema(:str?)
+                      schema(:array?).each(:str?)
                     end
                   end
                 end
@@ -447,9 +447,9 @@ mod tests {
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, max_size: 2, min_size: 1).each(:array, max_size: 4, min_size: 3) do
+                  required(:user_id).value(:array, max_size: 2, min_size: 1).each(:array?, max_size: 4, min_size: 3) do
                     schema(:array?).each(:array?, max_size: 6, min_size: 5) do
-                      schema(:str?, max_size: 8, min_size: 7)
+                      schema(:array?).each(:str?, max_size: 8, min_size: 7)
                     end
                   end
                 end

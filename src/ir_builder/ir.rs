@@ -11,10 +11,29 @@ pub enum SchemaClass {
 pub enum Stmt {
     Required { name: String, r#macro: Macro },
     Optional { name: String, r#macro: Macro },
+    Schema { ty: Type, r#macro: Macro },
 }
 
 pub enum Macro {
-    Value { ty: Type },
+    Value {
+        ty: Type,
+        validates: Vec<Validate>,
+        r#macro: Option<Box<Macro>>,
+    },
+    Each {
+        ty: Type,
+        validates: Vec<Validate>,
+        block: Option<Block>,
+    },
+}
+
+pub struct Block {
+    pub stmts: Vec<Stmt>,
+}
+impl Block {
+    pub fn new_single_stmt(stmt: Stmt) -> Self {
+        Self { stmts: vec![stmt] }
+    }
 }
 
 pub enum Validate {
@@ -25,18 +44,7 @@ pub enum Validate {
 }
 
 pub enum Type {
-    Integer {
-        validates: Vec<Validate>,
-    },
-    String {
-        validates: Vec<Validate>,
-    },
-    Array {
-        validates: Vec<Validate>,
-        item: Option<Box<Each>>,
-    },
-}
-
-pub struct Each {
-    pub ty: Type,
+    Integer,
+    String,
+    Array,
 }
