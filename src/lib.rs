@@ -188,25 +188,76 @@ mod tests {
                 [
                     {
                         "in": "query",
-                        "name": "required_key",
-                        "require": true,
+                        "name": "required_integer_key",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "optional_integer_key",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "required_string_key",
+                        "required": true,
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
                         "in": "query",
-                        "name": "optional_key",
+                        "name": "optional_string_key",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "required_boolean_key",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "optional_boolean_key",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "required_array_key",
+                        "required": true,
+                        "schema": {
+                            "type": "array"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "optional_array_key",
+                        "schema": {
+                            "type": "array"
                         }
                     }
                 ]
             "#,
             expect![[r#"
                 TestExample = Dry::Schema::Params do
-                  optional(:required_key).value(:string)
-                  optional(:optional_key).value(:string)
+                  required(:required_integer_key).value(:integer)
+                  optional(:optional_integer_key).value(:integer)
+                  required(:required_string_key).value(:string)
+                  optional(:optional_string_key).value(:string)
+                  required(:required_boolean_key).value(:boolean)
+                  optional(:optional_boolean_key).value(:boolean)
+                  required(:required_array_key).value(:array)
+                  optional(:optional_array_key).value(:array)
                 end
             "#]],
         );
