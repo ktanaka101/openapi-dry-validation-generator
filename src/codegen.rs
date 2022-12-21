@@ -53,7 +53,7 @@ fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
         ir::Macro::Value {
             ty,
             validates,
-            r#macro,
+            macro_or_block,
         } => {
             const LITERAL: &str = ".value";
             let mut out = if validates.is_empty() {
@@ -66,8 +66,15 @@ fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
                     gen_validates(validates)
                 )
             };
-            if let Some(r#macro) = r#macro {
-                out.push_str(&gen_macro(r#macro, nesting));
+            if let Some(macro_or_block) = macro_or_block {
+                match macro_or_block.as_ref() {
+                    ir::MacroOrBlock::Macro(r#macro) => {
+                        out.push_str(&gen_macro(r#macro, nesting));
+                    }
+                    ir::MacroOrBlock::Block(block) => {
+                        out.push_str(&gen_block(block, nesting));
+                    }
+                }
             }
 
             out

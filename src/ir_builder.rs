@@ -26,7 +26,7 @@ impl IrBuilder {
                     let r#macro = ir::Macro::Value {
                         ty: ir::Type::Integer,
                         validates: self.build_validates(validates),
-                        r#macro: None,
+                        macro_or_block: None,
                     };
 
                     if param.required {
@@ -40,7 +40,7 @@ impl IrBuilder {
                     let r#macro = ir::Macro::Value {
                         ty: ir::Type::String,
                         validates: self.build_validates(validates),
-                        r#macro: None,
+                        macro_or_block: None,
                     };
 
                     if param.required {
@@ -54,7 +54,7 @@ impl IrBuilder {
                     let r#macro = ir::Macro::Value {
                         ty: ir::Type::Boolean,
                         validates: vec![],
-                        r#macro: None,
+                        macro_or_block: None,
                     };
 
                     if param.required {
@@ -68,9 +68,9 @@ impl IrBuilder {
                     let r#macro = ir::Macro::Value {
                         ty: ir::Type::Array,
                         validates: self.build_validates(validates),
-                        r#macro: if let Some(item) = item_ty {
+                        macro_or_block: if let Some(item) = item_ty {
                             let item = *item.to_owned();
-                            Some(Box::new(self.build_item(&item)))
+                            Some(Box::new(ir::MacroOrBlock::Macro(self.build_item(&item))))
                         } else {
                             None
                         },

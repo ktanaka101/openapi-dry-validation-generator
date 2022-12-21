@@ -18,13 +18,18 @@ pub enum Macro {
     Value {
         ty: Type,
         validates: Vec<Validate>,
-        r#macro: Option<Box<Macro>>,
+        macro_or_block: Option<Box<MacroOrBlock>>,
     },
     Each {
         ty: Type,
         validates: Vec<Validate>,
         block: Option<Block>,
     },
+}
+
+pub enum MacroOrBlock {
+    Macro(Macro),
+    Block(Block),
 }
 
 pub struct Block {
