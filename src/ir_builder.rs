@@ -67,7 +67,13 @@ impl IrBuilder {
             } => ir::Macro::Each {
                 ty: ir::Type::Hash,
                 validates: self.build_validates(validates),
-                block: Some(self.build_properties(properties)),
+                block: {
+                    if properties.is_empty() {
+                        None
+                    } else {
+                        Some(self.build_properties(properties))
+                    }
+                },
             },
         }
     }
@@ -151,9 +157,15 @@ impl IrBuilder {
                 let r#macro = ir::Macro::Value {
                     ty: ir::Type::Hash,
                     validates: vec![],
-                    macro_or_block: Some(Box::new(ir::MacroOrBlock::Block(
-                        self.build_properties(properties),
-                    ))),
+                    macro_or_block: {
+                        if properties.is_empty() {
+                            None
+                        } else {
+                            Some(Box::new(ir::MacroOrBlock::Block(
+                                self.build_properties(properties),
+                            )))
+                        }
+                    },
                 };
 
                 if required {

@@ -136,8 +136,7 @@ mod tests {
                   optional(:integer_key).value(:integer)
                   optional(:boolean_key).value(:boolean)
                   optional(:array_key).value(:array)
-                  optional(:object_key).value(:hash) do
-                  end
+                  optional(:object_key).value(:hash)
                 end
             "#]],
         );
@@ -235,10 +234,8 @@ mod tests {
                   optional(:optional_boolean_key).value(:boolean)
                   required(:required_array_key).value(:array)
                   optional(:optional_array_key).value(:array)
-                  required(:required_object_key).value(:hash) do
-                  end
-                  optional(:optional_object_key).value(:hash) do
-                  end
+                  required(:required_object_key).value(:hash)
+                  optional(:optional_object_key).value(:hash)
                 end
             "#]],
         );
@@ -383,8 +380,7 @@ mod tests {
                   optional(:string_item).value(:array).each(:str?)
                   optional(:boolean_item).value(:array).each(:bool?)
                   optional(:array_item).value(:array).each(:array?)
-                  optional(:object_item).value(:array).each(:hash?) do
-                  end
+                  optional(:object_item).value(:array).each(:hash?)
                 end
             "#]],
         );
@@ -469,8 +465,7 @@ mod tests {
                   optional(:string_item).value(:array, min_size: 5, max_size: 6).each(:str?, min_size: 7, max_size: 8)
                   optional(:boolean_item).value(:array, min_size: 9, max_size: 10).each(:bool?)
                   optional(:array_item).value(:array, min_size: 11, max_size: 12).each(:array?, min_size: 13, max_size: 14)
-                  optional(:object_item).value(:array, min_size: 15, max_size: 16).each(:hash?) do
-                  end
+                  optional(:object_item).value(:array, min_size: 15, max_size: 16).each(:hash?)
                 end
             "#]],
         );
@@ -592,8 +587,7 @@ mod tests {
                   end
                   required(:nested_object).value(:array).each(:array?) do
                     schema(:array?).each(:array?) do
-                      schema(:array?).each(:hash?) do
-                      end
+                      schema(:array?).each(:hash?)
                     end
                   end
                 end
@@ -753,8 +747,7 @@ mod tests {
                   end
                   required(:nested_object).value(:array, min_size: 31, max_size: 32).each(:array?, min_size: 33, max_size: 34) do
                     schema(:array?).each(:array?, min_size: 35, max_size: 36) do
-                      schema(:array?).each(:hash?) do
-                      end
+                      schema(:array?).each(:hash?)
                     end
                   end
                 end
@@ -800,8 +793,7 @@ mod tests {
                     optional(:string_prop).value(:string)
                     optional(:boolean_prop).value(:boolean)
                     optional(:array_prop).value(:array)
-                    optional(:object_prop).value(:hash) do
-                    end
+                    optional(:object_prop).value(:hash)
                   end
                 end
             "#]],
@@ -852,8 +844,7 @@ mod tests {
                     optional(:string_prop).value(:string, min_size: 3, max_size: 4)
                     optional(:boolean_prop).value(:boolean)
                     optional(:array_prop).value(:array, min_size: 5, max_size: 6)
-                    optional(:object_prop).value(:hash) do
-                    end
+                    optional(:object_prop).value(:hash)
                   end
                 end
             "#]],
@@ -911,8 +902,7 @@ mod tests {
                         optional(:nested_3_2).value(:string)
                         optional(:nested_3_3).value(:boolean)
                         optional(:nested_3_4).value(:array)
-                        optional(:nested_3_5).value(:hash) do
-                        end
+                        optional(:nested_3_5).value(:hash)
                       end
                     end
                   end
@@ -978,8 +968,7 @@ mod tests {
                         optional(:nested_3_2).value(:string, min_size: 3, max_size: 4)
                         optional(:nested_3_3).value(:boolean)
                         optional(:nested_3_4).value(:array, min_size: 5, max_size: 6)
-                        optional(:nested_3_5).value(:hash) do
-                        end
+                        optional(:nested_3_5).value(:hash)
                       end
                     end
                   end
