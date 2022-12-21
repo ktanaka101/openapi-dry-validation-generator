@@ -120,6 +120,13 @@ mod tests {
                         "schema": {
                             "type": "array"
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "object_key",
+                        "schema": {
+                            "type": "object"
+                        }
                     }
                 ]
             "#,
@@ -129,6 +136,8 @@ mod tests {
                   optional(:integer_key).value(:integer)
                   optional(:boolean_key).value(:boolean)
                   optional(:array_key).value(:array)
+                  optional(:object_key).value(:hash) do
+                  end
                 end
             "#]],
         );
@@ -198,6 +207,21 @@ mod tests {
                         "schema": {
                             "type": "array"
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "required_object_key",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "optional_object_key",
+                        "schema": {
+                            "type": "object"
+                        }
                     }
                 ]
             "#,
@@ -211,6 +235,10 @@ mod tests {
                   optional(:optional_boolean_key).value(:boolean)
                   required(:required_array_key).value(:array)
                   optional(:optional_array_key).value(:array)
+                  required(:required_object_key).value(:hash) do
+                  end
+                  optional(:optional_object_key).value(:hash) do
+                  end
                 end
             "#]],
         );
@@ -336,6 +364,16 @@ mod tests {
                                 "type": "array"
                             }
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "object_item",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            }
+                        }
                     }
                 ]
             "#,
@@ -345,6 +383,8 @@ mod tests {
                   optional(:string_item).value(:array).each(:str?)
                   optional(:boolean_item).value(:array).each(:bool?)
                   optional(:array_item).value(:array).each(:array?)
+                  optional(:object_item).value(:array).each(:hash?) do
+                  end
                 end
             "#]],
         );
@@ -408,6 +448,18 @@ mod tests {
                                 "maxItems": 14
                             }
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "object_item",
+                        "schema": {
+                            "type": "array",
+                            "minItems": 15,
+                            "maxItems": 16,
+                            "items": {
+                                "type": "object"
+                            }
+                        }
                     }
                 ]
             "#,
@@ -417,6 +469,8 @@ mod tests {
                   optional(:string_item).value(:array, min_size: 5, max_size: 6).each(:str?, min_size: 7, max_size: 8)
                   optional(:boolean_item).value(:array, min_size: 9, max_size: 10).each(:bool?)
                   optional(:array_item).value(:array, min_size: 11, max_size: 12).each(:array?, min_size: 13, max_size: 14)
+                  optional(:object_item).value(:array, min_size: 15, max_size: 16).each(:hash?) do
+                  end
                 end
             "#]],
         );
@@ -494,6 +548,23 @@ mod tests {
                                 }
                             }
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "nested_object",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     }
                 ]
             "#,
@@ -517,6 +588,12 @@ mod tests {
                   required(:nested_array).value(:array).each(:array?) do
                     schema(:array?).each(:array?) do
                       schema(:array?).each(:array?)
+                    end
+                  end
+                  required(:nested_object).value(:array).each(:array?) do
+                    schema(:array?).each(:array?) do
+                      schema(:array?).each(:hash?) do
+                      end
                     end
                   end
                 end
@@ -626,6 +703,29 @@ mod tests {
                                 }
                             }
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "nested_object",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "minItems": 31,
+                            "maxItems": 32,
+                            "items": {
+                                "type": "array",
+                                "minItems": 33,
+                                "maxItems": 34,
+                                "items": {
+                                    "type": "array",
+                                    "minItems": 35,
+                                    "maxItems": 36,
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
                     }
                 ]
             "#,
@@ -649,6 +749,335 @@ mod tests {
                   required(:nested_array).value(:array, min_size: 23, max_size: 24).each(:array?, min_size: 25, max_size: 26) do
                     schema(:array?).each(:array?, min_size: 27, max_size: 28) do
                       schema(:array?).each(:array?, min_size: 29, max_size: 30)
+                    end
+                  end
+                  required(:nested_object).value(:array, min_size: 31, max_size: 32).each(:array?, min_size: 33, max_size: 34) do
+                    schema(:array?).each(:array?, min_size: 35, max_size: 36) do
+                      schema(:array?).each(:hash?) do
+                      end
+                    end
+                  end
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_property_types_in_hash() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "integer_property",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "integer_prop": {
+                                    "type": "integer"
+                                },
+                                "string_prop": {
+                                    "type": "string"
+                                },
+                                "boolean_prop": {
+                                    "type": "boolean"
+                                },
+                                "array_prop": {
+                                    "type": "array"
+                                },
+                                "object_prop": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  optional(:integer_property).value(:hash) do
+                    optional(:integer_prop).value(:integer)
+                    optional(:string_prop).value(:string)
+                    optional(:boolean_prop).value(:boolean)
+                    optional(:array_prop).value(:array)
+                    optional(:object_prop).value(:hash) do
+                    end
+                  end
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_property_types_with_validation_in_object() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "property_types",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "integer_prop": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 2
+                                },
+                                "string_prop": {
+                                    "type": "string",
+                                    "minLength": 3,
+                                    "maxLength": 4
+                                },
+                                "boolean_prop": {
+                                    "type": "boolean"
+                                },
+                                "array_prop": {
+                                    "type": "array",
+                                    "minItems": 5,
+                                    "maxItems": 6
+                                },
+                                "object_prop": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  optional(:property_types).value(:hash) do
+                    optional(:integer_prop).value(:integer, min: 1, max: 2)
+                    optional(:string_prop).value(:string, min_size: 3, max_size: 4)
+                    optional(:boolean_prop).value(:boolean)
+                    optional(:array_prop).value(:array, min_size: 5, max_size: 6)
+                    optional(:object_prop).value(:hash) do
+                    end
+                  end
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_nested_object() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "nested_object",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "nested_1": {
+                                    "type": "object",
+                                    "properties": {
+                                        "nested_2": {
+                                            "type": "object",
+                                            "properties": {
+                                                "nested_3_1": {
+                                                    "type": "integer"
+                                                },
+                                                "nested_3_2": {
+                                                    "type": "string"
+                                                },
+                                                "nested_3_3": {
+                                                    "type": "boolean"
+                                                },
+                                                "nested_3_4": {
+                                                    "type": "array"
+                                                },
+                                                "nested_3_5": {
+                                                    "type": "object"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(:nested_object).value(:hash) do
+                    optional(:nested_1).value(:hash) do
+                      optional(:nested_2).value(:hash) do
+                        optional(:nested_3_1).value(:integer)
+                        optional(:nested_3_2).value(:string)
+                        optional(:nested_3_3).value(:boolean)
+                        optional(:nested_3_4).value(:array)
+                        optional(:nested_3_5).value(:hash) do
+                        end
+                      end
+                    end
+                  end
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_nested_object_with_validation() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "nested_object",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "nested_1": {
+                                    "type": "object",
+                                    "properties": {
+                                        "nested_2": {
+                                            "type": "object",
+                                            "properties": {
+                                                "nested_3_1": {
+                                                    "type": "integer",
+                                                    "minimum": 1,
+                                                    "maximum": 2
+                                                },
+                                                "nested_3_2": {
+                                                    "type": "string",
+                                                    "minLength": 3,
+                                                    "maxLength": 4
+                                                },
+                                                "nested_3_3": {
+                                                    "type": "boolean"
+                                                },
+                                                "nested_3_4": {
+                                                    "type": "array",
+                                                    "minItems": 5,
+                                                    "maxItems": 6
+                                                },
+                                                "nested_3_5": {
+                                                    "type": "object"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(:nested_object).value(:hash) do
+                    optional(:nested_1).value(:hash) do
+                      optional(:nested_2).value(:hash) do
+                        optional(:nested_3_1).value(:integer, min: 1, max: 2)
+                        optional(:nested_3_2).value(:string, min_size: 3, max_size: 4)
+                        optional(:nested_3_3).value(:boolean)
+                        optional(:nested_3_4).value(:array, min_size: 5, max_size: 6)
+                        optional(:nested_3_5).value(:hash) do
+                        end
+                      end
+                    end
+                  end
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_nested_object_with_required() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "nested_object",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "nested_1": {
+                                    "type": "object",
+                                    "properties": {
+                                        "nested_2": {
+                                            "type": "object",
+                                            "properties": {
+                                                "nested_3_1": {
+                                                    "type": "integer",
+                                                    "minimum": 1,
+                                                    "maximum": 2
+                                                },
+                                                "nested_3_2": {
+                                                    "type": "string",
+                                                    "minLength": 3,
+                                                    "maxLength": 4
+                                                },
+                                                "nested_3_3": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": ["nested_3_1", "nested_3_3"]
+                                        }
+                                    },
+                                    "required": ["nested_2"]
+                                }
+                            },
+                            "required": ["nested_1"]
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(:nested_object).value(:hash) do
+                    required(:nested_1).value(:hash) do
+                      required(:nested_2).value(:hash) do
+                        required(:nested_3_1).value(:integer, min: 1, max: 2)
+                        optional(:nested_3_2).value(:string, min_size: 3, max_size: 4)
+                        required(:nested_3_3).value(:boolean)
+                      end
+                    end
+                  end
+                end
+            "#]],
+        );
+    }
+
+    #[test]
+    fn query_object_required_with_the_same_name() {
+        check_parameters(
+            r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "nested_object",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "same_key": {
+                                    "type": "object",
+                                    "properties": {
+                                        "same_key": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            },
+                            "required": ["same_key"]
+                        }
+                    }
+                ]
+            "#,
+            expect![[r#"
+                TestExample = Dry::Schema::Params do
+                  required(:nested_object).value(:hash) do
+                    required(:same_key).value(:hash) do
+                      optional(:same_key).value(:boolean)
                     end
                   end
                 end

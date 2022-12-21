@@ -20,71 +20,7 @@ impl IrBuilder {
     fn build(&self, ast: &ast::RootSchema) -> IrResult {
         let mut stmts = vec![];
         for param in &ast.queries {
-            let stmt = match &param.ty {
-                ast::Type::Integer { validates } => {
-                    let name = param.name.clone();
-                    let r#macro = ir::Macro::Value {
-                        ty: ir::Type::Integer,
-                        validates: self.build_validates(validates),
-                        macro_or_block: None,
-                    };
-
-                    if param.required {
-                        ir::Stmt::Required { name, r#macro }
-                    } else {
-                        ir::Stmt::Optional { name, r#macro }
-                    }
-                }
-                ast::Type::String { validates } => {
-                    let name = param.name.clone();
-                    let r#macro = ir::Macro::Value {
-                        ty: ir::Type::String,
-                        validates: self.build_validates(validates),
-                        macro_or_block: None,
-                    };
-
-                    if param.required {
-                        ir::Stmt::Required { name, r#macro }
-                    } else {
-                        ir::Stmt::Optional { name, r#macro }
-                    }
-                }
-                ast::Type::Boolean => {
-                    let name = param.name.clone();
-                    let r#macro = ir::Macro::Value {
-                        ty: ir::Type::Boolean,
-                        validates: vec![],
-                        macro_or_block: None,
-                    };
-
-                    if param.required {
-                        ir::Stmt::Required { name, r#macro }
-                    } else {
-                        ir::Stmt::Optional { name, r#macro }
-                    }
-                }
-                ast::Type::Array { validates, item_ty } => {
-                    let name = param.name.clone();
-                    let r#macro = ir::Macro::Value {
-                        ty: ir::Type::Array,
-                        validates: self.build_validates(validates),
-                        macro_or_block: if let Some(item) = item_ty {
-                            let item = *item.to_owned();
-                            Some(Box::new(ir::MacroOrBlock::Macro(self.build_item(&item))))
-                        } else {
-                            None
-                        },
-                    };
-
-                    if param.required {
-                        ir::Stmt::Required { name, r#macro }
-                    } else {
-                        ir::Stmt::Optional { name, r#macro }
-                    }
-                }
-            };
-
-            stmts.push(stmt);
+            stmts.push(self.build_property(param.name.clone(), param.required, &param.ty));
         }
 
         IrResult {
@@ -125,6 +61,107 @@ impl IrBuilder {
                     })
                 }),
             },
+            ast::Type::Object {
+                validates,
+                properties,
+            } => ir::Macro::Each {
+                ty: ir::Type::Hash,
+                validates: self.build_validates(validates),
+                block: Some(self.build_properties(properties)),
+            },
+        }
+    }
+
+    fn build_properties(&self, properties: &[ast::Property]) -> ir::Block {
+        let mut stmts = vec![];
+        for property in properties {
+            stmts.push(self.build_property(
+                property.key.clone(),
+                property.required,
+                &property.value,
+            ));
+        }
+
+        ir::Block { stmts }
+    }
+
+    fn build_property(&self, name: String, required: bool, ty: &ast::Type) -> ir::Stmt {
+        match ty {
+            ast::Type::Integer { validates } => {
+                let r#macro = ir::Macro::Value {
+                    ty: ir::Type::Integer,
+                    validates: self.build_validates(validates),
+                    macro_or_block: None,
+                };
+
+                if required {
+                    ir::Stmt::Required { name, r#macro }
+                } else {
+                    ir::Stmt::Optional { name, r#macro }
+                }
+            }
+            ast::Type::String { validates } => {
+                let r#macro = ir::Macro::Value {
+                    ty: ir::Type::String,
+                    validates: self.build_validates(validates),
+                    macro_or_block: None,
+                };
+
+                if required {
+                    ir::Stmt::Required { name, r#macro }
+                } else {
+                    ir::Stmt::Optional { name, r#macro }
+                }
+            }
+            ast::Type::Boolean => {
+                let r#macro = ir::Macro::Value {
+                    ty: ir::Type::Boolean,
+                    validates: vec![],
+                    macro_or_block: None,
+                };
+
+                if required {
+                    ir::Stmt::Required { name, r#macro }
+                } else {
+                    ir::Stmt::Optional { name, r#macro }
+                }
+            }
+            ast::Type::Array { validates, item_ty } => {
+                let r#macro = ir::Macro::Value {
+                    ty: ir::Type::Array,
+                    validates: self.build_validates(validates),
+                    macro_or_block: if let Some(item) = item_ty {
+                        let item = *item.to_owned();
+                        Some(Box::new(ir::MacroOrBlock::Macro(self.build_item(&item))))
+                    } else {
+                        None
+                    },
+                };
+
+                if required {
+                    ir::Stmt::Required { name, r#macro }
+                } else {
+                    ir::Stmt::Optional { name, r#macro }
+                }
+            }
+            ast::Type::Object {
+                validates: _,
+                properties,
+            } => {
+                let r#macro = ir::Macro::Value {
+                    ty: ir::Type::Hash,
+                    validates: vec![],
+                    macro_or_block: Some(Box::new(ir::MacroOrBlock::Block(
+                        self.build_properties(properties),
+                    ))),
+                };
+
+                if required {
+                    ir::Stmt::Required { name, r#macro }
+                } else {
+                    ir::Stmt::Optional { name, r#macro }
+                }
+            }
         }
     }
 

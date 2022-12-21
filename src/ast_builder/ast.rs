@@ -33,4 +33,15 @@ pub enum Type {
         validates: Vec<Validate>,
         item_ty: Option<Box<Type>>,
     },
+    Object {
+        validates: Vec<Validate>,
+        properties: Vec<Property>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Property {
+    pub required: bool,
+    pub key: String,
+    pub value: Type,
 }

@@ -85,38 +85,21 @@ fn gen_macro(r#macro: &ir::Macro, nesting: usize) -> String {
             block,
         } => {
             const LITERAL: &str = ".each";
-            match ty {
-                ir::Type::Integer | ir::Type::String | ir::Type::Boolean => {
-                    if validates.is_empty() {
-                        format!("{}(:{})", LITERAL, gen_type_predicate(ty))
-                    } else {
-                        format!(
-                            "{}(:{}, {})",
-                            LITERAL,
-                            gen_type_predicate(ty),
-                            gen_validates(validates)
-                        )
-                    }
-                }
-                ir::Type::Array => {
-                    let mut out = if validates.is_empty() {
-                        format!("{}(:{})", LITERAL, gen_type_predicate(ty))
-                    } else {
-                        format!(
-                            "{}(:{}, {})",
-                            LITERAL,
-                            gen_type_predicate(ty),
-                            gen_validates(validates)
-                        )
-                    };
-
-                    if let Some(block) = block {
-                        out.push_str(&gen_block(block, nesting));
-                    }
-
-                    out
-                }
+            let mut out = if validates.is_empty() {
+                format!("{}(:{})", LITERAL, gen_type_predicate(ty))
+            } else {
+                format!(
+                    "{}(:{}, {})",
+                    LITERAL,
+                    gen_type_predicate(ty),
+                    gen_validates(validates)
+                )
+            };
+            if let Some(block) = block {
+                out.push_str(&gen_block(block, nesting));
             }
+
+            out
         }
     }
 }
@@ -159,6 +142,7 @@ fn gen_type_spec(ty: &ir::Type) -> String {
         ir::Type::String => "string",
         ir::Type::Boolean => "boolean",
         ir::Type::Array => "array",
+        ir::Type::Hash => "hash",
     }
     .to_string()
 }
@@ -169,6 +153,7 @@ fn gen_type_predicate(ty: &ir::Type) -> String {
         ir::Type::String => "str?",
         ir::Type::Boolean => "bool?",
         ir::Type::Array => "array?",
+        ir::Type::Hash => "hash?",
     }
     .to_string()
 }

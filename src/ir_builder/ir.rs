@@ -57,4 +57,5 @@ pub enum Type {
     String,
     Boolean,
     Array,
+    Hash,
 }
