@@ -1,0 +1,16 @@
+openapi: 3.0.0
+info:
+  title: Testing API overview
+  version: 1.0.0
+paths:
+  /test/example:
+    get:
+      operationId: test-example
+      parameters:
+        - in: query
+          name: string_key
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK

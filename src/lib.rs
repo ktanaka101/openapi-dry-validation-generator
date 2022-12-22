@@ -4,10 +4,39 @@ mod ir_builder;
 
 use openapiv3::{OpenAPI, Operation, PathItem, ReferenceOr};
 
-pub fn generate_dry_validation(text: &str) -> String {
+pub enum FileType {
+    Json,
+    Yaml,
+}
+
+pub fn generate_dry_validation_from_json(text: &str) -> String {
+    let openapi: OpenAPI = match serde_json::from_str(text) {
+        Ok(openapi) => openapi,
+        Err(err) => panic!(
+            "Could not deserialize input\nerror line: `{}`\n",
+            text.lines().nth(err.line()).unwrap().trim()
+        ),
+    };
+    generate_dry_validation(&openapi)
+}
+
+pub fn generate_dry_validation_from_yaml(text: &str) -> String {
+    let openapi: OpenAPI = match serde_yaml::from_str(text) {
+        Ok(openapi) => openapi,
+        Err(err) => panic!(
+            "Could not deserialize input\nerror line: `{}`\n",
+            text.lines()
+                .nth(err.location().unwrap().line())
+                .unwrap()
+                .trim()
+        ),
+    };
+    generate_dry_validation(&openapi)
+}
+
+fn generate_dry_validation(openapi: &OpenAPI) -> String {
     let mut code = String::new();
 
-    let openapi = deserialize(text);
     for (pathname, item) in &openapi.paths.paths {
         let item = match item {
             ReferenceOr::Item(item) => item,
@@ -33,14 +62,4 @@ fn handling_operation(path: &PathItem) -> Vec<&Operation> {
     }
 
     operations
-}
-
-fn deserialize(text: &str) -> OpenAPI {
-    match serde_json::from_str(text) {
-        Ok(openapi) => openapi,
-        Err(err) => panic!(
-            "Could not deserialize input\nerror line: `{}`\n",
-            text.lines().nth(err.line()).unwrap().trim()
-        ),
-    }
 }

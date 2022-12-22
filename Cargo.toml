@@ -9,7 +9,9 @@ edition = "2021"
 la-arena = "0.2"
 openapiv3 = "1.0"
 serde_json = "1.0"
+serde_yaml = "0.9"
 convert_case = "0.6"
+clap = { version = "4.0.30", features = ["derive"] }
 
 [dev-dependencies]
 expect-test = "1.4"
