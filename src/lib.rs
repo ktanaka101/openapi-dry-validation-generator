@@ -4,11 +4,6 @@ mod ir_builder;
 
 use openapiv3::{OpenAPI, Operation, PathItem, ReferenceOr};
 
-pub enum FileType {
-    Json,
-    Yaml,
-}
-
 pub fn generate_dry_validation_from_json(text: &str) -> String {
     let openapi: OpenAPI = match serde_json::from_str(text) {
         Ok(openapi) => openapi,
