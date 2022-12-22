@@ -1,9 +1,11 @@
+mod common;
+
 use expect_test::{expect, Expect};
 
 use openapi_dry_validation_generator::generate_dry_validation_from_json;
 
 fn check_parameters(actual: &str, expect: Expect) {
-    let actual = boilerplate(&format!(
+    let actual = common::boilerplate(&format!(
         r#"
                 "/test/example": {{
                     "get": {{
@@ -20,24 +22,6 @@ fn check_parameters(actual: &str, expect: Expect) {
     ));
     let debug_actual = generate_dry_validation_from_json(&actual);
     expect.assert_eq(&debug_actual);
-}
-
-fn boilerplate(input: &str) -> String {
-    format!(
-        r#"
-                {{
-                    "openapi": "3.0.0",
-                    "info": {{
-                        "title": "Testing API overview",
-                        "version": "1.0.0"
-                    }},
-                    "paths": {{
-                        {}
-                    }}
-                }}
-            "#,
-        input
-    )
 }
 
 #[test]
