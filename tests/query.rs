@@ -1,12 +1,10 @@
-#[cfg(test)]
-mod tests {
-    use expect_test::{expect, Expect};
+use expect_test::{expect, Expect};
 
-    use openapi_dry_validation_generator::generate_dry_validation_from_json;
+use openapi_dry_validation_generator::generate_dry_validation_from_json;
 
-    fn check_parameters(actual: &str, expect: Expect) {
-        let actual = boilerplate(&format!(
-            r#"
+fn check_parameters(actual: &str, expect: Expect) {
+    let actual = boilerplate(&format!(
+        r#"
                 "/test/example": {{
                     "get": {{
                         "operationId": "testExample",
@@ -19,14 +17,14 @@ mod tests {
                     }}
                 }}
             "#
-        ));
-        let debug_actual = generate_dry_validation_from_json(&actual);
-        expect.assert_eq(&debug_actual);
-    }
+    ));
+    let debug_actual = generate_dry_validation_from_json(&actual);
+    expect.assert_eq(&debug_actual);
+}
 
-    fn check_operation_id(actual: &str, expect: Expect) {
-        let actual = boilerplate(&format!(
-            r#"
+fn check_operation_id(actual: &str, expect: Expect) {
+    let actual = boilerplate(&format!(
+        r#"
                 "/test/example": {{
                     "get": {{
                         "operationId": "{actual}",
@@ -38,14 +36,14 @@ mod tests {
                     }}
                 }}
             "#
-        ));
-        let debug_actual = generate_dry_validation_from_json(&actual);
-        expect.assert_eq(&debug_actual);
-    }
+    ));
+    let debug_actual = generate_dry_validation_from_json(&actual);
+    expect.assert_eq(&debug_actual);
+}
 
-    fn boilerplate(input: &str) -> String {
-        format!(
-            r#"
+fn boilerplate(input: &str) -> String {
+    format!(
+        r#"
                 {{
                     "openapi": "3.0.0",
                     "info": {{
@@ -57,41 +55,41 @@ mod tests {
                     }}
                 }}
             "#,
-            input
-        )
-    }
+        input
+    )
+}
 
-    #[test]
-    fn defined_name_is_pascal() {
-        check_operation_id(
-            "testExample",
-            expect![[r#"
+#[test]
+fn defined_name_is_pascal() {
+    check_operation_id(
+        "testExample",
+        expect![[r#"
               TestExample = Dry::Schema::Params do
               end
             "#]],
-        );
+    );
 
-        check_operation_id(
-            "test-example",
-            expect![[r#"
+    check_operation_id(
+        "test-example",
+        expect![[r#"
               TestExample = Dry::Schema::Params do
               end
             "#]],
-        );
+    );
 
-        check_operation_id(
-            "test_example",
-            expect![[r#"
+    check_operation_id(
+        "test_example",
+        expect![[r#"
               TestExample = Dry::Schema::Params do
               end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_types() {
-        check_parameters(
-            r#"
+#[test]
+fn query_types() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -130,7 +128,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   optional(:string_key).value(:string)
                   optional(:integer_key).value(:integer)
@@ -139,13 +137,13 @@ mod tests {
                   optional(:object_key).value(:hash)
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_required_and_optional() {
-        check_parameters(
-            r#"
+#[test]
+fn query_required_and_optional() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -224,7 +222,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:required_integer_key).value(:integer)
                   optional(:optional_integer_key).value(:integer)
@@ -238,13 +236,13 @@ mod tests {
                   optional(:optional_object_key).value(:hash)
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_validates_integer() {
-        check_parameters(
-            r#"
+#[test]
+fn query_validates_integer() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -258,18 +256,18 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:user_id).value(:integer, min: 10, max: 20)
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_validates_string() {
-        check_parameters(
-            r#"
+#[test]
+fn query_validates_string() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -283,18 +281,18 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:user_id).value(:string, min_size: 10, max_size: 20)
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_validates_array() {
-        check_parameters(
-            r#"
+#[test]
+fn query_validates_array() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -309,18 +307,18 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:user_id).value(:array, min_size: 5, max_size: 10)
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_item_types_in_array() {
-        check_parameters(
-            r#"
+#[test]
+fn query_item_types_in_array() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -374,7 +372,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   optional(:integer_item).value(:array).each(:int?)
                   optional(:string_item).value(:array).each(:str?)
@@ -383,13 +381,13 @@ mod tests {
                   optional(:object_item).value(:array).each(:hash?)
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_item_types_with_validation_in_array() {
-        check_parameters(
-            r#"
+#[test]
+fn query_item_types_with_validation_in_array() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -459,7 +457,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   optional(:integer_item).value(:array, min_size: 1, max_size: 2).each(:int?, min: 3, max: 4)
                   optional(:string_item).value(:array, min_size: 5, max_size: 6).each(:str?, min_size: 7, max_size: 8)
@@ -468,13 +466,13 @@ mod tests {
                   optional(:object_item).value(:array, min_size: 15, max_size: 16).each(:hash?)
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_nested_array() {
-        check_parameters(
-            r#"
+#[test]
+fn query_nested_array() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -563,7 +561,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:nested_integer).value(:array).each(:array?) do
                     schema(:array?).each(:array?) do
@@ -592,13 +590,13 @@ mod tests {
                   end
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_nested_array_with_validation() {
-        check_parameters(
-            r#"
+#[test]
+fn query_nested_array_with_validation() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -723,7 +721,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:nested_integer).value(:array, min_size: 1, max_size: 2).each(:array?, min_size: 3, max_size: 4) do
                     schema(:array?).each(:array?, min_size: 5, max_size: 6) do
@@ -752,13 +750,13 @@ mod tests {
                   end
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_property_types_in_hash() {
-        check_parameters(
-            r#"
+#[test]
+fn query_property_types_in_hash() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -786,7 +784,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   optional(:integer_property).value(:hash) do
                     optional(:integer_prop).value(:integer)
@@ -797,13 +795,13 @@ mod tests {
                   end
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_property_types_with_validation_in_object() {
-        check_parameters(
-            r#"
+#[test]
+fn query_property_types_with_validation_in_object() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -837,7 +835,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   optional(:property_types).value(:hash) do
                     optional(:integer_prop).value(:integer, min: 1, max: 2)
@@ -848,13 +846,13 @@ mod tests {
                   end
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_nested_object() {
-        check_parameters(
-            r#"
+#[test]
+fn query_nested_object() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -893,7 +891,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:nested_object).value(:hash) do
                     optional(:nested_1).value(:hash) do
@@ -908,13 +906,13 @@ mod tests {
                   end
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_nested_object_with_validation() {
-        check_parameters(
-            r#"
+#[test]
+fn query_nested_object_with_validation() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -959,7 +957,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:nested_object).value(:hash) do
                     optional(:nested_1).value(:hash) do
@@ -974,13 +972,13 @@ mod tests {
                   end
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_nested_object_with_required() {
-        check_parameters(
-            r#"
+#[test]
+fn query_nested_object_with_required() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -1020,7 +1018,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:nested_object).value(:hash) do
                     required(:nested_1).value(:hash) do
@@ -1033,13 +1031,13 @@ mod tests {
                   end
                 end
             "#]],
-        );
-    }
+    );
+}
 
-    #[test]
-    fn query_object_required_with_the_same_name() {
-        check_parameters(
-            r#"
+#[test]
+fn query_object_required_with_the_same_name() {
+    check_parameters(
+        r#"
                 [
                     {
                         "in": "query",
@@ -1062,7 +1060,7 @@ mod tests {
                     }
                 ]
             "#,
-            expect![[r#"
+        expect![[r#"
                 TestExample = Dry::Schema::Params do
                   required(:nested_object).value(:hash) do
                     required(:same_key).value(:hash) do
@@ -1071,6 +1069,5 @@ mod tests {
                   end
                 end
             "#]],
-        );
-    }
+    );
 }
