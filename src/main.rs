@@ -1,7 +1,7 @@
 use std::{
     fs::File,
     io::{Read, Write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use anyhow::Result;
@@ -37,16 +37,9 @@ fn main() -> Result<()> {
         SupportFileType::Yaml => generate_dry_validation_from_yaml(&file_content),
     };
 
-    let out_dir = Path::new(&args.out_dir);
-    let out_file_name = {
-        let mut file_name = path.file_stem().unwrap().to_str().unwrap().to_string();
-        file_name.push_str(".rb");
-        file_name
-    };
-    let out_path = out_dir.join(out_file_name);
-    std::fs::create_dir_all(out_dir).unwrap();
-    let mut file = File::create(out_path).unwrap();
-    file.write_all(ruby_code.as_bytes()).unwrap();
+    let output = Output::new(&args.out_dir, path).unwrap();
+    output.create_dir_all().unwrap();
+    output.write_file_all(&ruby_code).unwrap();
 
     Ok(())
 }
@@ -64,5 +57,37 @@ fn select_file_type(path: &Path) -> Result<SupportFileType> {
             ext => anyhow::bail!("Unsupported file extension.(ext: {ext})"),
         },
         None => anyhow::bail!("Unknown file extension."),
+    }
+}
+
+struct Output {
+    file_path: PathBuf,
+}
+impl Output {
+    fn new<S1, S2>(dir: &S1, input: &S2) -> Result<Self>
+    where
+        S1: AsRef<std::ffi::OsStr> + ?Sized,
+        S2: AsRef<std::ffi::OsStr> + ?Sized,
+    {
+        let mut input_file_name = Path::new(input)
+            .file_stem()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
+        input_file_name.push_str(".rb");
+        let file_path = Path::new(dir).join(input_file_name);
+
+        Ok(Self { file_path })
+    }
+
+    fn create_dir_all(&self) -> std::io::Result<()> {
+        std::fs::create_dir_all(self.file_path.parent().unwrap())
+    }
+
+    fn write_file_all(&self, content: &str) -> std::io::Result<()> {
+        let mut file = File::create(&self.file_path).unwrap();
+        file.write_all(content.as_bytes()).unwrap();
+        Ok(())
     }
 }
