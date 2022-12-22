@@ -64,19 +64,19 @@ struct Output {
     file_path: PathBuf,
 }
 impl Output {
-    fn new<S1, S2>(dir: &S1, input: &S2) -> Result<Self>
+    fn new<S1, S2>(output_dir: &S1, input_file_path: &S2) -> Result<Self>
     where
         S1: AsRef<std::ffi::OsStr> + ?Sized,
         S2: AsRef<std::ffi::OsStr> + ?Sized,
     {
-        let mut input_file_name = Path::new(input)
+        let mut input_file_name = Path::new(input_file_path)
             .file_stem()
             .unwrap()
             .to_str()
             .unwrap()
             .to_string();
         input_file_name.push_str(".rb");
-        let file_path = Path::new(dir).join(input_file_name);
+        let file_path = Path::new(output_dir).join(input_file_name);
 
         Ok(Self { file_path })
     }
