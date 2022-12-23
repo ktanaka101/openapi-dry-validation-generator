@@ -15,12 +15,14 @@ The ultimate goal is to
 
 ## Supports
 
+This mark(🚫) is an option that we do not believe can be supported by `dry-validation` in the first place.
+
 ### Client Modification Feature
 
-- [ ] BasePath
-- [ ] Authorizations
-- [ ] UserAgent
-- [ ] MockServer
+- [ ] 🚫 BasePath
+- [ ] 🚫 Authorizations
+- [ ] 🚫 UserAgent
+- [ ] 🚫 MockServer
 
 ### Data Type Feature
 
@@ -50,15 +52,15 @@ The ultimate goal is to
 
 ### Global Feature
 
-- [ ] Host
-- [ ] BasePath
-- [ ] Info
+- [ ] 🚫 Host
+- [ ] 🚫 BasePath
+- [ ] 🚫 Info
 - [ ] Schemes
 - [ ] PartialSchemes
 - [ ] ExternalDocumentation
 - [ ] Examples
 - [ ] XMLStructureDefinitions
-- [ ] MultiServer
+- [ ] 🚫 MultiServer
 - [ ] ParameterizedServer
 - [ ] ParameterStyling
 - [ ] Callbacks
@@ -84,14 +86,14 @@ The ultimate goal is to
 
 ### Security Feature
 
-- [ ] BasicAuth
-- [ ] ApiKey
-- [ ] OpenIDConnect
-- [ ] BearerToken
-- [ ] OAuth2_Implicit
-- [ ] OAuth2_Password
-- [ ] OAuth2_ClientCredentials
-- [ ] OAuth2_AuthorizationCode
+- [ ] 🚫 BasicAuth
+- [ ] 🚫 ApiKey
+- [ ] 🚫 OpenIDConnect
+- [ ] 🚫 BearerToken
+- [ ] 🚫 OAuth2_Implicit
+- [ ] 🚫 OAuth2_Password
+- [ ] 🚫 OAuth2_ClientCredentials
+- [ ] 🚫 OAuth2_AuthorizationCode
 
 ### Input Format
 
