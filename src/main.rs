@@ -15,15 +15,15 @@ use openapi_dry_validation_generator::{
 #[command(author, version, about, long_about = None)]
 struct Args {
     #[arg(short, long)]
-    spec: String,
+    input: String,
 
     #[arg(short, long, default_value = "out")]
-    out_dir: String,
+    output: String,
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
-    let path = Path::new(&args.spec);
+    let path = Path::new(&args.input);
     let file_content = {
         let mut file = File::open(path).unwrap();
         let mut buf = String::new();
@@ -37,7 +37,7 @@ fn main() -> Result<()> {
         SupportFileType::Yaml => generate_dry_validation_from_yaml(&file_content),
     };
 
-    let output = Output::new(&args.out_dir, path).unwrap();
+    let output = Output::new(&args.output, path).unwrap();
     output.create_dir_all().unwrap();
     output.write_file_all(&ruby_code).unwrap();
 
