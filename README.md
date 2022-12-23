@@ -8,17 +8,95 @@ Generate dry-validation(ruby) from openapi spec file
 We want to output [dry-validation](https://github.com/dry-rb/dry-validation) from the OpenAPI definition file.
 I want to be able to delegate the validation of the API to be implemented in Ruby to the OpenAPI definition 🚀.
 
-## Status
-
-🛠 WIP!!
-Only get request parameters are supported.
-Much work still needs to be done!
-
 The ultimate goal is to
-
 - Provided as an executable file. (single binary, of course)
 - Supports all definitions involving OpenAPI validation.
 - Generate a ruby code within 1 second.
+
+## Supports
+
+### Client Modification Feature
+
+- [ ] BasePath
+- [ ] Authorizations
+- [ ] UserAgent
+- [ ] MockServer
+
+### Data Type Feature
+
+- [ ] Custom
+- [x] Int32
+- [x] Int64
+- [ ] Float
+- [ ] Double
+- [x] String
+- [ ] Byte
+- [x] Boolean
+- [ ] Date
+- [ ] DateTime
+- [ ] Password
+- [ ] Uuid
+- [x] Array
+- [ ] Null
+- [ ] AnyType
+- [x] Object
+- [ ] Enum
+
+### Documentation Feature
+
+- [ ] Readme
+- [ ] model
+- [ ] Api
+
+### Global Feature
+
+- [ ] Host
+- [ ] BasePath
+- [ ] Info
+- [ ] Schemes
+- [ ] PartialSchemes
+- [ ] ExternalDocumentation
+- [ ] Examples
+- [ ] XMLStructureDefinitions
+- [ ] MultiServer
+- [ ] ParameterizedServer
+- [ ] ParameterStyling
+- [ ] Callbacks
+- [ ] LinkObjects
+
+### Parameter Feature
+
+- [ ] Path
+- [x] Query
+- [ ] Header
+- [ ] Cookie
+
+### Schema Support Feature
+
+- [x] Simple
+- [ ] Composite
+- [ ] Polymorphism
+- [ ] Union
+- [ ] allOf
+- [ ] anyOf
+- [ ] oneOf
+- [ ] not
+
+### Security Feature
+
+- [ ] BasicAuth
+- [ ] ApiKey
+- [ ] OpenIDConnect
+- [ ] BearerToken
+- [ ] OAuth2_Implicit
+- [ ] OAuth2_Password
+- [ ] OAuth2_ClientCredentials
+- [ ] OAuth2_AuthorizationCode
+
+### Input Format
+
+- [x] JSON
+- [x] YAML
 
 ## Contributors
 
