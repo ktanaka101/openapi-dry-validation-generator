@@ -21,7 +21,7 @@ impl ReferenceDatabase {
     }
 
     pub(super) fn resolve_path_item(&mut self, reference: &str) -> Result<&PathItem> {
-        let reference = FileKey::new(&reference)?;
+        let reference = FileKey::new(reference)?;
 
         let entry = self.path_item_by_file.entry(reference);
         Ok(entry.or_insert_with_key(|reference| {
@@ -40,7 +40,7 @@ impl ReferenceDatabase {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct FileKey(PathBuf);
 impl FileKey {
-    fn new<P>(path: &P) -> Result<Self>
+    fn new<P>(path: P) -> Result<Self>
     where
         P: AsRef<Path>,
     {
