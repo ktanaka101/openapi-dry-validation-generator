@@ -70,10 +70,19 @@ impl<'a> AstBuilder<'a> {
 
         for (path_name, item) in paths.iter() {
             let item = match item {
-                ReferenceOr::Item(item) => item,
-                ReferenceOr::Reference { .. } => unimplemented!(),
+                ReferenceOr::Item(item) => item.clone(),
+                ReferenceOr::Reference { reference } => {
+                    if let Ok(item) = self.db.resolve_path_item(reference) {
+                        item.clone()
+                    } else {
+                        self.add_error(format!(
+                            "Failed to resolve reference. reference: {reference}"
+                        ));
+                        continue;
+                    }
+                }
             };
-            let operations = Self::handling_operation(item);
+            let operations = Self::handling_operation(&item);
 
             path_items.push(ast::PathItem {
                 url: path_name.clone(),
