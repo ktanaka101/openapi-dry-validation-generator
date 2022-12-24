@@ -1,6 +1,8 @@
 pub mod ast;
+mod reference_db;
 
 use ast::RootSchema;
+use reference_db::ReferenceDatabase;
 
 use openapiv3::{
     Operation, Parameter, ParameterData, ParameterSchemaOrContent, ReferenceOr, Schema, SchemaKind,
@@ -21,6 +23,7 @@ struct AstBuilder<'a> {
     pathname: String,
     operation: &'a Operation,
     errors: Vec<String>,
+    db: ReferenceDatabase,
 }
 
 impl<'a> AstBuilder<'a> {
@@ -29,6 +32,7 @@ impl<'a> AstBuilder<'a> {
             pathname,
             operation,
             errors: Vec::new(),
+            db: ReferenceDatabase::new(),
         }
     }
 
