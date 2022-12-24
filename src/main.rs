@@ -1,15 +1,13 @@
 use std::{
     fs::File,
-    io::{Read, Write},
+    io::Write,
     path::{Path, PathBuf},
 };
 
 use anyhow::Result;
 use clap::Parser;
 
-use openapi_dry_validation_generator::{
-    generate_dry_validation_from_json, generate_dry_validation_from_yaml,
-};
+use openapi_dry_validation_generator::generate_dry_validation_from_file;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -23,41 +21,13 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
-    let path = Path::new(&args.input);
-    let file_content = {
-        let mut file = File::open(path).unwrap();
-        let mut buf = String::new();
-        file.read_to_string(&mut buf).unwrap();
+    let ruby_code = generate_dry_validation_from_file(&args.input);
 
-        buf
-    };
-
-    let ruby_code = match select_file_type(path)? {
-        SupportFileType::Json => generate_dry_validation_from_json(&file_content),
-        SupportFileType::Yaml => generate_dry_validation_from_yaml(&file_content),
-    };
-
-    let output = Output::new(&args.output, path).unwrap();
+    let output = Output::new(&args.output, &args.input).unwrap();
     output.create_dir_all().unwrap();
     output.write_file_all(&ruby_code).unwrap();
 
     Ok(())
-}
-
-enum SupportFileType {
-    Json,
-    Yaml,
-}
-
-fn select_file_type(path: &Path) -> Result<SupportFileType> {
-    match path.extension() {
-        Some(extension) => match extension.to_ascii_lowercase().to_str().unwrap() {
-            "json" => Ok(SupportFileType::Json),
-            "yaml" | "yml" => Ok(SupportFileType::Yaml),
-            ext => anyhow::bail!("Unsupported file extension.(ext: {ext})"),
-        },
-        None => anyhow::bail!("Unknown file extension."),
-    }
 }
 
 struct Output {
