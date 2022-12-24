@@ -43,6 +43,15 @@ impl<'a> AstBuilder<'a> {
         if let Some(ope) = &path.post {
             operations.push(ope);
         }
+        if let Some(ope) = &path.patch {
+            operations.push(ope);
+        }
+        if let Some(ope) = &path.put {
+            operations.push(ope);
+        }
+        if let Some(ope) = &path.delete {
+            operations.push(ope);
+        }
 
         operations
     }

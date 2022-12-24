@@ -52,6 +52,57 @@ fn operations() {
                             "description": "OK"
                         }
                     }
+                },
+                "patch": {
+                    "operationId": "patch-test",
+                    "parameters": [
+                        {
+                            "in": "query",
+                            "name": "patch_key",
+                            "schema": {
+                                "type": "boolean"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "OK"
+                        }
+                    }
+                },
+                "put": {
+                    "operationId": "put-test",
+                    "parameters": [
+                        {
+                            "in": "query",
+                            "name": "put_key",
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "OK"
+                        }
+                    }
+                },
+                "delete": {
+                    "operationId": "delete-test",
+                    "parameters": [
+                        {
+                            "in": "query",
+                            "name": "delete_key",
+                            "schema": {
+                                "type": "integer"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "OK"
+                        }
+                    }
                 }
             }
         "#,
@@ -61,6 +112,15 @@ fn operations() {
             end
             PostTest = Dry::Schema::Params do
               optional(:post_key).value(:integer)
+            end
+            PatchTest = Dry::Schema::Params do
+              optional(:patch_key).value(:boolean)
+            end
+            PutTest = Dry::Schema::Params do
+              optional(:put_key).value(:string)
+            end
+            DeleteTest = Dry::Schema::Params do
+              optional(:delete_key).value(:integer)
             end
         "#]],
     );
