@@ -2,7 +2,7 @@ mod common;
 
 use expect_test::{expect, Expect};
 
-use openapi_dry_validation_generator::generate_dry_validation_from_json;
+use openapi_dry_validation_generator::generate_dry_validation_from_root_json;
 
 fn check_operation_id(actual: &str, expect: Expect) {
     let actual = common::boilerplate(&format!(
@@ -19,7 +19,7 @@ fn check_operation_id(actual: &str, expect: Expect) {
                 }}
             "#
     ));
-    let debug_actual = generate_dry_validation_from_json(&actual);
+    let debug_actual = generate_dry_validation_from_root_json(&actual);
     expect.assert_eq(&debug_actual);
 }
 

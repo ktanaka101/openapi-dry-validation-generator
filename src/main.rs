@@ -7,7 +7,7 @@ use std::{
 use anyhow::Result;
 use clap::Parser;
 
-use openapi_dry_validation_generator::generate_dry_validation_from_file;
+use openapi_dry_validation_generator::generate_dry_validation_from_root_file;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -21,7 +21,7 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
-    let ruby_code = generate_dry_validation_from_file(&args.input);
+    let ruby_code = generate_dry_validation_from_root_file(&args.input);
 
     let output = Output::new(&args.output, &args.input).unwrap();
     output.create_dir_all().unwrap();

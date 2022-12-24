@@ -7,7 +7,7 @@ use std::{fs::File, io::Read, path::Path};
 use anyhow::Result;
 use openapiv3::{OpenAPI, Operation, PathItem, ReferenceOr};
 
-pub fn generate_dry_validation_from_file<P>(path: P) -> String
+pub fn generate_dry_validation_from_root_file<P>(path: P) -> String
 where
     P: AsRef<Path>,
 {
@@ -22,12 +22,12 @@ where
     };
 
     match file_type {
-        SupportFileType::Json => generate_dry_validation_from_json(&file_content),
-        SupportFileType::Yaml => generate_dry_validation_from_yaml(&file_content),
+        SupportFileType::Json => generate_dry_validation_from_root_json(&file_content),
+        SupportFileType::Yaml => generate_dry_validation_from_root_yaml(&file_content),
     }
 }
 
-pub fn generate_dry_validation_from_json(text: &str) -> String {
+pub fn generate_dry_validation_from_root_json(text: &str) -> String {
     let openapi: OpenAPI = match serde_json::from_str(text) {
         Ok(openapi) => openapi,
         Err(err) => panic!(
@@ -35,10 +35,10 @@ pub fn generate_dry_validation_from_json(text: &str) -> String {
             text.lines().nth(err.line()).unwrap().trim()
         ),
     };
-    generate_dry_validation(&openapi)
+    generate_dry_validation_from_root(&openapi)
 }
 
-pub fn generate_dry_validation_from_yaml(text: &str) -> String {
+pub fn generate_dry_validation_from_root_yaml(text: &str) -> String {
     let openapi: OpenAPI = match serde_yaml::from_str(text) {
         Ok(openapi) => openapi,
         Err(err) => panic!(
@@ -49,7 +49,7 @@ pub fn generate_dry_validation_from_yaml(text: &str) -> String {
                 .trim()
         ),
     };
-    generate_dry_validation(&openapi)
+    generate_dry_validation_from_root(&openapi)
 }
 
 enum SupportFileType {
@@ -71,7 +71,7 @@ where
     }
 }
 
-fn generate_dry_validation(openapi: &OpenAPI) -> String {
+fn generate_dry_validation_from_root(openapi: &OpenAPI) -> String {
     let mut code = String::new();
 
     for (pathname, item) in &openapi.paths.paths {
