@@ -5,7 +5,7 @@ mod ir_builder;
 use std::{fs::File, io::Read, path::Path};
 
 use anyhow::Result;
-use openapiv3::{OpenAPI, Operation, PathItem, ReferenceOr};
+use openapiv3::OpenAPI;
 
 pub fn generate_dry_validation_from_root_file<P>(path: P) -> String
 where
@@ -74,29 +74,9 @@ where
 fn generate_dry_validation_from_root(openapi: &OpenAPI) -> String {
     let mut code = String::new();
 
-    for (pathname, item) in &openapi.paths.paths {
-        let item = match item {
-            ReferenceOr::Item(item) => item,
-            ReferenceOr::Reference { .. } => unimplemented!(),
-        };
-        let operations = handling_operation(item);
-        for operation in operations {
-            let ast_result = ast_builder::build(pathname.clone(), operation);
-            let ir_result = ir_builder::build(&ast_result.ast);
+    let ast_result = ast_builder::build(openapi);
+    let ir_result = ir_builder::build(&ast_result.ast);
 
-            code += &codegen::generate(&ir_result.ir);
-        }
-    }
-
+    code += &codegen::generate(&ir_result.ir);
     code
-}
-
-fn handling_operation(path: &PathItem) -> Vec<&Operation> {
-    let mut operations = Vec::new();
-
-    if let Some(ope) = &path.get {
-        operations.push(ope);
-    }
-
-    operations
 }

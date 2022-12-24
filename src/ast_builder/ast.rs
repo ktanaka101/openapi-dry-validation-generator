@@ -1,5 +1,14 @@
 pub struct RootSchema {
-    pub name: Option<String>,
+    pub path_items: Vec<PathItem>,
+}
+
+pub struct PathItem {
+    pub url: String,
+    pub operations: Vec<Operation>,
+}
+
+pub struct Operation {
+    pub id: Option<String>,
     pub queries: Vec<Schema>,
 }
 

@@ -8,7 +8,7 @@ pub fn build(root_schema: &ast::RootSchema) -> IrResult {
 }
 
 pub struct IrResult {
-    pub ir: ir::Def,
+    pub ir: ir::Defs,
 }
 
 struct IrBuilder {}
@@ -18,17 +18,25 @@ impl IrBuilder {
     }
 
     fn build(&self, ast: &ast::RootSchema) -> IrResult {
-        let mut stmts = vec![];
-        for param in &ast.queries {
-            stmts.push(self.build_property(param.name.clone(), param.required, &param.ty));
+        let mut defs = vec![];
+
+        for path_item in &ast.path_items {
+            for operation in &path_item.operations {
+                let mut stmts = vec![];
+                for param in &operation.queries {
+                    stmts.push(self.build_property(param.name.clone(), param.required, &param.ty));
+                }
+
+                defs.push(ir::Def {
+                    name: operation.id.clone().unwrap(),
+                    class: ir::SchemaClass::Params,
+                    block: ir::Block::new(stmts),
+                });
+            }
         }
 
         IrResult {
-            ir: ir::Def {
-                name: ast.name.clone().unwrap(),
-                class: ir::SchemaClass::Params,
-                block: ir::Block::new(stmts),
-            },
+            ir: ir::Defs { defs },
         }
     }
 

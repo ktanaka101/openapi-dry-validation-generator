@@ -1,3 +1,7 @@
+pub struct Defs {
+    pub defs: Vec<Def>,
+}
+
 pub struct Def {
     pub name: String,
     pub class: SchemaClass,

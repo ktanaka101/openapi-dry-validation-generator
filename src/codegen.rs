@@ -2,16 +2,18 @@ use convert_case::{Case, Casing};
 
 use crate::ir_builder::ir;
 
-pub fn generate(def: &ir::Def) -> String {
+pub fn generate(defs: &ir::Defs) -> String {
     let mut code = String::new();
 
-    code.push_str(&format!(
-        "{} = {}",
-        gen_def_name(&def.name),
-        gen_schema_class(&def.class)
-    ));
-    code.push_str(&gen_block(&def.block, 0));
-    code.push('\n');
+    for def in &defs.defs {
+        code.push_str(&format!(
+            "{} = {}",
+            gen_def_name(&def.name),
+            gen_schema_class(&def.class)
+        ));
+        code.push_str(&gen_block(&def.block, 0));
+        code.push('\n');
+    }
 
     code
 }

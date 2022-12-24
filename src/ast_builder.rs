@@ -5,12 +5,12 @@ use ast::RootSchema;
 use reference_db::ReferenceDatabase;
 
 use openapiv3::{
-    Operation, Parameter, ParameterData, ParameterSchemaOrContent, ReferenceOr, Schema, SchemaKind,
-    Type,
+    OpenAPI, Operation, Parameter, ParameterData, ParameterSchemaOrContent, PathItem, Paths,
+    ReferenceOr, Schema, SchemaKind, Type,
 };
 
-pub fn build(pathname: String, operation: &Operation) -> AstResult {
-    let builder = AstBuilder::new(pathname, operation);
+pub fn build(openapi: &OpenAPI) -> AstResult {
+    let builder = AstBuilder::new(openapi);
     builder.build()
 }
 
@@ -20,24 +20,66 @@ pub struct AstResult {
 }
 
 struct AstBuilder<'a> {
-    pathname: String,
-    operation: &'a Operation,
+    openapi: &'a OpenAPI,
     errors: Vec<String>,
     db: ReferenceDatabase,
 }
 
 impl<'a> AstBuilder<'a> {
-    fn new(pathname: String, operation: &'a Operation) -> Self {
+    fn new(openapi: &'a OpenAPI) -> Self {
         Self {
-            pathname,
-            operation,
+            openapi,
             errors: Vec::new(),
             db: ReferenceDatabase::new(),
         }
     }
 
+    fn handling_operation(path: &PathItem) -> Vec<&Operation> {
+        let mut operations = Vec::new();
+
+        if let Some(ope) = &path.get {
+            operations.push(ope);
+        }
+        if let Some(ope) = &path.post {
+            operations.push(ope);
+        }
+
+        operations
+    }
+
     fn build(mut self) -> AstResult {
-        let ope_id = if let Some(id) = &self.operation.operation_id {
+        let path_items = self.build_paths(&self.openapi.paths);
+
+        AstResult {
+            ast: RootSchema { path_items },
+            errors: self.errors,
+        }
+    }
+
+    fn build_paths(&mut self, paths: &Paths) -> Vec<ast::PathItem> {
+        let mut path_items = vec![];
+
+        for (path_name, item) in paths.iter() {
+            let item = match item {
+                ReferenceOr::Item(item) => item,
+                ReferenceOr::Reference { .. } => unimplemented!(),
+            };
+            let operations = Self::handling_operation(item);
+
+            path_items.push(ast::PathItem {
+                url: path_name.clone(),
+                operations: operations
+                    .iter()
+                    .map(|ope| self.build_operation(ope))
+                    .collect::<Vec<_>>(),
+            });
+        }
+
+        path_items
+    }
+
+    fn build_operation(&mut self, operation: &Operation) -> ast::Operation {
+        let ope_id = if let Some(id) = &operation.operation_id {
             Some(id.clone())
         } else {
             self.errors.push("operation_id is not found".to_string());
@@ -45,7 +87,7 @@ impl<'a> AstBuilder<'a> {
         };
 
         let mut queries = vec![];
-        for param in &self.operation.parameters {
+        for param in &operation.parameters {
             let param = match param {
                 ReferenceOr::Item(param) => param,
                 ReferenceOr::Reference { .. } => unimplemented!(),
@@ -61,12 +103,9 @@ impl<'a> AstBuilder<'a> {
             }
         }
 
-        AstResult {
-            ast: RootSchema {
-                name: ope_id,
-                queries,
-            },
-            errors: self.errors,
+        ast::Operation {
+            id: ope_id,
+            queries,
         }
     }
 
@@ -80,7 +119,7 @@ impl<'a> AstBuilder<'a> {
                 self.build_schema(schema, param)
             }
             ParameterSchemaOrContent::Content(_) => {
-                self.add_unsupported_error("Content");
+                self.add_unsupported_error_by_param("Content", param);
                 return None;
             }
         }?;
@@ -206,20 +245,27 @@ impl<'a> AstBuilder<'a> {
         }
     }
 
-    fn add_unsupported_error(&mut self, target: &str) {
-        self.add_error(&format!("`{target}` is not supported"));
+    fn add_unsupported_error_by_param(&mut self, target: &str, param: &ParameterData) {
+        self.add_error(format!("`{target}` is not supported in {}", param.name));
     }
 
-    fn add_unsupported_error_by_param(&mut self, target: &str, ctx: &ParameterData) {
-        self.add_error(&format!("`{target}` is not supported in {}", ctx.name));
-    }
-
-    fn add_error(&mut self, message: &str) {
-        if let Some(operation_id) = &self.operation.operation_id {
-            self.errors
-                .push(format!("{message} in {} {operation_id}", self.pathname));
+    fn add_unsupported_error_by_operation(
+        &mut self,
+        target: &str,
+        operation: &Operation,
+        path_name: &str,
+    ) {
+        if let Some(operation_id) = &operation.operation_id {
+            self.errors.push(format!(
+                "`{target}` is not supported in {path_name} {operation_id}"
+            ));
         } else {
-            self.errors.push(format!("{message} in {}", self.pathname));
+            self.errors
+                .push(format!("`{target}` is not supported in {path_name}"));
         }
+    }
+
+    fn add_error(&mut self, message: String) {
+        self.errors.push(message);
     }
 }
