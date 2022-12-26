@@ -18,3 +18,4 @@ reqwest = { version = "0.11", features = ["blocking"] }
 
 [dev-dependencies]
 expect-test = "1.4"
+httptest = "0.15"
