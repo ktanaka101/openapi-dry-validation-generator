@@ -10,7 +10,7 @@ fn check(actual: &str, expect: Expect) {
 }
 
 #[test]
-fn check_reference_path_item() {
+fn reference_path_item_from_server() {
     let server = Server::run();
     let stub_body = r#"
         {
