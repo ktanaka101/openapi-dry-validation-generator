@@ -2,19 +2,60 @@ use std::{collections::HashMap, path::PathBuf};
 
 use anyhow::Result;
 
-use openapiv3::PathItem;
+use openapiv3::{OpenAPI, Parameter, PathItem};
 use url::Url;
 
 use crate::{select_file_type, SupportFileType};
 
-#[derive(Debug)]
-pub(super) struct ReferenceDatabase {
-    path_item_by_file: HashMap<FileKey, PathItem>,
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+enum FileReference {
+    Local,
+    LocalFile(FileKey),
 }
-impl ReferenceDatabase {
-    pub(super) fn new() -> Self {
+impl FileReference {
+    fn local_file(reference: &str) -> Result<Self> {
+        Ok(Self::LocalFile(FileKey::new(reference)?))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct FileReferenceWithPath {
+    reference: FileReference,
+    path: String,
+}
+impl FileReferenceWithPath {
+    fn new(reference: &str) -> Result<Self> {
+        let paths = reference.split('#');
+        let paths = paths.collect::<Vec<_>>();
+        if paths.len() != 2 {
+            anyhow::bail!("Failed to parse reference.(reference: {reference})");
+        }
+        let file_path = paths[0];
+        let path = paths[1];
+
+        Ok(FileReferenceWithPath {
+            reference: if file_path.is_empty() {
+                FileReference::Local
+            } else {
+                FileReference::local_file(file_path)?
+            },
+            path: path.to_string(),
+        })
+    }
+}
+
+#[derive(Debug)]
+pub(super) struct ReferenceDatabase<'a> {
+    local: &'a OpenAPI,
+    path_item_by_file: HashMap<FileKey, PathItem>,
+    parameter_by_file: HashMap<FileKey, Parameter>,
+}
+impl<'a> ReferenceDatabase<'a> {
+    pub(super) fn new(local: &'a OpenAPI) -> Self {
         Self {
+            local,
             path_item_by_file: HashMap::new(),
+            parameter_by_file: HashMap::new(),
         }
     }
 
@@ -32,6 +73,55 @@ impl ReferenceDatabase {
             };
             item
         }))
+    }
+
+    pub(super) fn resolve_parameter(&mut self, reference: &str) -> Result<&Parameter> {
+        let reference_with_path = FileReferenceWithPath::new(reference)?;
+
+        match reference_with_path.reference {
+            FileReference::Local => {
+                let paths = reference_with_path
+                    .path
+                    .split('/')
+                    // #/components/parameters/SomeParameter
+                    //  ^skip first slash
+                    .skip(1)
+                    .collect::<Vec<_>>();
+                dbg!(&paths);
+                if paths.len() != 3 {
+                    anyhow::bail!("Invalid path.");
+                }
+                if paths[0] != "components" {
+                    anyhow::bail!("Invalid path.");
+                }
+                if paths[1] != "parameters" {
+                    anyhow::bail!("Invalid path.");
+                }
+
+                let parameter_name = paths[2];
+                let parameter = &self.local.components.as_ref().unwrap().parameters[parameter_name];
+                match parameter {
+                    openapiv3::ReferenceOr::Reference { reference } => {
+                        // ToDo: Stop generating the same parameters recursively.
+                        self.resolve_parameter(reference)
+                    }
+                    openapiv3::ReferenceOr::Item(item) => Ok(item),
+                }
+            }
+            FileReference::LocalFile(file_key) => {
+                let entry = self.parameter_by_file.entry(file_key);
+                Ok(entry.or_insert_with_key(|reference| {
+                    let file_type = reference.file_type().unwrap();
+                    let file = reference.read_content();
+
+                    let item: Parameter = match file_type {
+                        SupportFileType::Json => serde_json::from_str(&file).unwrap(),
+                        SupportFileType::Yaml => serde_yaml::from_str(&file).unwrap(),
+                    };
+                    item
+                }))
+            }
+        }
     }
 }
 

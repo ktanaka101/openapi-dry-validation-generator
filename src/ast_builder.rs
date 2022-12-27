@@ -22,7 +22,7 @@ pub struct AstResult {
 struct AstBuilder<'a> {
     openapi: &'a OpenAPI,
     errors: Vec<String>,
-    db: ReferenceDatabase,
+    db: ReferenceDatabase<'a>,
 }
 
 impl<'a> AstBuilder<'a> {
@@ -30,7 +30,7 @@ impl<'a> AstBuilder<'a> {
         Self {
             openapi,
             errors: Vec::new(),
-            db: ReferenceDatabase::new(),
+            db: ReferenceDatabase::new(openapi),
         }
     }
 
@@ -107,13 +107,15 @@ impl<'a> AstBuilder<'a> {
         let mut queries = vec![];
         for param in &operation.parameters {
             let param = match param {
-                ReferenceOr::Item(param) => param,
-                ReferenceOr::Reference { .. } => unimplemented!(),
+                ReferenceOr::Item(param) => param.clone(),
+                ReferenceOr::Reference { reference } => {
+                    self.db.resolve_parameter(reference).unwrap().clone()
+                }
             };
 
             match param {
                 Parameter::Query { parameter_data, .. } => {
-                    if let Some(query) = self.build_param(parameter_data) {
+                    if let Some(query) = self.build_param(&parameter_data) {
                         queries.push(query);
                     }
                 }
