@@ -78,3 +78,49 @@ fn reference_parameter_from_local() {
         "#]],
     );
 }
+
+#[test]
+fn reference_parameter_from_local_file() {
+    check(
+        r##"
+            {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Testing API overview",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/example/test": {
+                        "get": {
+                            "operationId": "test-example",
+                            "parameters": [
+                                {
+                                    "$ref": "./foo.json"
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "OK"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            ---
+            ./foo.json
+            {
+                "in": "query",
+                "name": "string_key",
+                "schema": {
+                    "type": "string"
+                }
+            }
+        "##,
+        expect![[r#"
+            TestExample = Dry::Schema::Params do
+              optional(:string_key).value(:string)
+            end
+        "#]],
+    );
+}

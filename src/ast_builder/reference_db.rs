@@ -8,39 +8,26 @@ use url::Url;
 use crate::{select_file_type, SupportFileType};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-enum FileReference {
-    Local,
+enum Reference {
+    Local { path: String },
     LocalFile(FileKey),
 }
-impl FileReference {
-    fn local_file(reference: &str) -> Result<Self> {
-        Ok(Self::LocalFile(FileKey::new(reference)?))
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct FileReferenceWithPath {
-    reference: FileReference,
-    path: String,
-}
-impl FileReferenceWithPath {
+impl Reference {
     fn new(reference: &str) -> Result<Self> {
-        let paths = reference.split('#');
-        let paths = paths.collect::<Vec<_>>();
-        if paths.len() != 2 {
-            anyhow::bail!("Failed to parse reference.(reference: {reference})");
-        }
-        let file_path = paths[0];
-        let path = paths[1];
+        if reference.starts_with('#') {
+            let paths = reference.split('#');
+            let paths = paths.collect::<Vec<_>>();
+            if paths.len() != 2 {
+                anyhow::bail!("Failed to parse reference.(reference: {reference})");
+            }
+            let path = paths[1];
 
-        Ok(FileReferenceWithPath {
-            reference: if file_path.is_empty() {
-                FileReference::Local
-            } else {
-                FileReference::local_file(file_path)?
-            },
-            path: path.to_string(),
-        })
+            Ok(Self::Local {
+                path: path.to_string(),
+            })
+        } else {
+            Ok(Self::LocalFile(FileKey::new(reference)?))
+        }
     }
 }
 
@@ -76,12 +63,11 @@ impl<'a> ReferenceDatabase<'a> {
     }
 
     pub(super) fn resolve_parameter(&mut self, reference: &str) -> Result<&Parameter> {
-        let reference_with_path = FileReferenceWithPath::new(reference)?;
+        let reference = Reference::new(reference)?;
 
-        match reference_with_path.reference {
-            FileReference::Local => {
-                let paths = reference_with_path
-                    .path
+        match reference {
+            Reference::Local { path } => {
+                let paths = path
                     .split('/')
                     // #/components/parameters/SomeParameter
                     //  ^skip first slash
@@ -108,7 +94,7 @@ impl<'a> ReferenceDatabase<'a> {
                     openapiv3::ReferenceOr::Item(item) => Ok(item),
                 }
             }
-            FileReference::LocalFile(file_key) => {
+            Reference::LocalFile(file_key) => {
                 let entry = self.parameter_by_file.entry(file_key);
                 Ok(entry.or_insert_with_key(|reference| {
                     let file_type = reference.file_type().unwrap();
