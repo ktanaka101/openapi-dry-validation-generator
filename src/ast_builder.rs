@@ -269,22 +269,6 @@ impl<'a> AstBuilder<'a> {
         self.add_error(format!("`{target}` is not supported in {}", param.name));
     }
 
-    fn add_unsupported_error_by_operation(
-        &mut self,
-        target: &str,
-        operation: &Operation,
-        path_name: &str,
-    ) {
-        if let Some(operation_id) = &operation.operation_id {
-            self.errors.push(format!(
-                "`{target}` is not supported in {path_name} {operation_id}"
-            ));
-        } else {
-            self.errors
-                .push(format!("`{target}` is not supported in {path_name}"));
-        }
-    }
-
     fn add_error(&mut self, message: String) {
         self.errors.push(message);
     }
