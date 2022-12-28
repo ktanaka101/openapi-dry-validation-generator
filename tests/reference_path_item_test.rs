@@ -3,7 +3,7 @@ use std::fs::remove_file;
 use expect_test::{expect, Expect};
 use openapi_dry_validation_generator::generate_dry_validation_from_root_json;
 
-fn check(actual: &str, expect: Expect) {
+fn check_with_local_file(actual: &str, expect: Expect) {
     let mut inputs = actual.split("---");
     let openapi = inputs.next().unwrap();
     let other_files = inputs
@@ -33,7 +33,7 @@ fn check(actual: &str, expect: Expect) {
 
 #[test]
 fn reference_path_item_from_local_file() {
-    check(
+    check_with_local_file(
         r#"
             {
                 "openapi": "3.0.0",
