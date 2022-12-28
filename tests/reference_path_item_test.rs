@@ -1,16 +1,11 @@
+mod common;
+
 use std::fs::remove_file;
 
 use expect_test::{expect, Expect};
 use openapi_dry_validation_generator::generate_dry_validation_from_root_json;
 
-mod common;
-
 use httptest::{matchers::*, responders::*, Expectation, Server};
-
-fn check(actual: &str, expect: Expect) {
-    let openapi = generate_dry_validation_from_root_json(actual);
-    expect.assert_eq(&openapi);
-}
 
 fn check_with_local_file(actual: &str, expect: Expect) {
     let mut inputs = actual.split("---");
@@ -124,7 +119,7 @@ fn reference_path_item_by_json_from_server() {
             }}
         "#
     ));
-    check(
+    common::check(
         &openapi,
         expect![[r#"
             TestExample = Dry::Schema::Params do
@@ -163,7 +158,7 @@ fn reference_path_item_by_yaml_from_server() {
             }}
         "#
     ));
-    check(
+    common::check(
         &openapi,
         expect![[r#"
             TestExample = Dry::Schema::Params do
