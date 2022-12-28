@@ -1,7 +1,6 @@
 mod common;
 
 use expect_test::expect;
-use httptest::{matchers::request, responders::status_code, Expectation, Server};
 
 #[test]
 fn reference_parameter_from_local() {
@@ -142,22 +141,18 @@ fn reference_parameter_by_yaml_from_local_file() {
 
 #[test]
 fn reference_path_item_from_server() {
-    let server = Server::run();
-    let stub_body = r#"
-        {
-            "in": "query",
-            "name": "ref_string_key",
-            "schema": {
-                "type": "string"
+    let (uri, _server) = common::once_mock_get_200(
+        "/foo.json",
+        r#"
+            {
+                "in": "query",
+                "name": "ref_string_key",
+                "schema": {
+                    "type": "string"
+                }
             }
-        }
-    "#;
-    server.expect(
-        Expectation::matching(request::method_path("GET", "/foo.json"))
-            .times(1)
-            .respond_with(status_code(200).body(stub_body)),
+        "#,
     );
-    let url = server.url("/foo.json");
 
     let openapi = common::boilerplate(&format!(
         r#"
@@ -166,7 +161,7 @@ fn reference_path_item_from_server() {
                     "operationId": "test-example",
                     "parameters": [
                         {{
-                            "$ref": "{url}"
+                            "$ref": "{uri}"
                         }}
                     ],
                     "responses": {{
