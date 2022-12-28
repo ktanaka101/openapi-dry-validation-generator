@@ -41,7 +41,8 @@ pub fn check_with_local_file(actual: &str, expect: Expect) {
                 .next()
                 .expect("Not found file path.(ex. `./tmp/example.json`)")
                 .trim();
-            let file_content = lines.collect::<String>();
+            let file_content = lines.collect::<Vec<&str>>().join("\n");
+
             (file_path, file_content)
         })
         .collect::<Vec<_>>();

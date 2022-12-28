@@ -51,7 +51,7 @@ fn reference_parameter_from_local() {
 }
 
 #[test]
-fn reference_parameter_from_local_file() {
+fn reference_parameter_by_json_from_local_file() {
     common::check_with_local_file(
         r##"
             {
@@ -66,7 +66,7 @@ fn reference_parameter_from_local_file() {
                             "operationId": "test-example",
                             "parameters": [
                                 {
-                                    "$ref": "./foo.json"
+                                    "$ref": "./tests/tmp/foo.json"
                                 }
                             ],
                             "responses": {
@@ -79,7 +79,7 @@ fn reference_parameter_from_local_file() {
                 }
             }
             ---
-            ./foo.json
+            ./tests/tmp/foo.json
             {
                 "in": "query",
                 "name": "string_key",
@@ -87,6 +87,49 @@ fn reference_parameter_from_local_file() {
                     "type": "string"
                 }
             }
+        "##,
+        expect![[r#"
+            TestExample = Dry::Schema::Params do
+              optional(:string_key).value(:string)
+            end
+        "#]],
+    );
+}
+
+#[test]
+fn reference_parameter_by_yaml_from_local_file() {
+    common::check_with_local_file(
+        r##"
+            {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Testing API overview",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/example/test": {
+                        "get": {
+                            "operationId": "test-example",
+                            "parameters": [
+                                {
+                                    "$ref": "./tests/tmp/foo.yaml"
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "OK"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            ---
+            ./tests/tmp/foo.yaml
+            in: query
+            name: string_key
+            schema:
+                type: string
         "##,
         expect![[r#"
             TestExample = Dry::Schema::Params do
