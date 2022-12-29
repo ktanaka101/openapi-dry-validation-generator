@@ -140,7 +140,7 @@ fn reference_parameter_by_yaml_from_local_file() {
 }
 
 #[test]
-fn reference_path_item_from_server() {
+fn reference_parameter_from_server() {
     let (uri, _server) = common::once_mock_get_200(
         "/foo.json",
         r#"
