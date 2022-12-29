@@ -133,10 +133,12 @@ impl<'a> AstBuilder<'a> {
         let ty = match &param.format {
             ParameterSchemaOrContent::Schema(schema) => {
                 let schema = match schema {
-                    ReferenceOr::Item(schema) => schema,
-                    ReferenceOr::Reference { .. } => unimplemented!(),
+                    ReferenceOr::Item(schema) => schema.clone(),
+                    ReferenceOr::Reference { reference } => {
+                        self.db.resolve_schema(reference).unwrap().clone()
+                    }
                 };
-                self.build_schema(schema, param)
+                self.build_schema(&schema, param)
             }
             ParameterSchemaOrContent::Content(_) => {
                 self.add_unsupported_error_by_param("Content", param);
@@ -197,10 +199,12 @@ impl<'a> AstBuilder<'a> {
 
                 let item_ty = if let Some(item_schema) = &array.items {
                     let schema = match item_schema {
-                        ReferenceOr::Item(schema) => schema,
-                        ReferenceOr::Reference { .. } => unimplemented!(),
+                        ReferenceOr::Item(schema) => *schema.clone(),
+                        ReferenceOr::Reference { reference } => {
+                            self.db.resolve_schema(reference).unwrap().clone()
+                        }
                     };
-                    self.build_schema(schema, ctx)
+                    self.build_schema(&schema, ctx)
                 } else {
                     None
                 };
@@ -214,10 +218,12 @@ impl<'a> AstBuilder<'a> {
                 let mut properties = vec![];
                 for property in object.properties.iter() {
                     let schema = match property.1 {
-                        ReferenceOr::Item(item) => item.as_ref(),
-                        ReferenceOr::Reference { .. } => unimplemented!(),
+                        ReferenceOr::Item(item) => *item.clone(),
+                        ReferenceOr::Reference { reference } => {
+                            self.db.resolve_schema(reference).unwrap().clone()
+                        }
                     };
-                    let ty = if let Some(ty) = self.build_schema(schema, ctx) {
+                    let ty = if let Some(ty) = self.build_schema(&schema, ctx) {
                         ty
                     } else {
                         continue;

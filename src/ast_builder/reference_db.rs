@@ -2,7 +2,7 @@ use std::{collections::HashMap, path::PathBuf};
 
 use anyhow::Result;
 
-use openapiv3::{OpenAPI, Parameter, PathItem};
+use openapiv3::{OpenAPI, Parameter, PathItem, Schema};
 use url::Url;
 
 use crate::{select_file_type, SupportFileType};
@@ -36,6 +36,7 @@ pub(super) struct ReferenceDatabase<'a> {
     local: &'a OpenAPI,
     path_item_by_file: HashMap<FileKey, PathItem>,
     parameter_by_file: HashMap<FileKey, Parameter>,
+    schema_by_file: HashMap<FileKey, Schema>,
 }
 impl<'a> ReferenceDatabase<'a> {
     pub(super) fn new(local: &'a OpenAPI) -> Self {
@@ -43,6 +44,7 @@ impl<'a> ReferenceDatabase<'a> {
             local,
             path_item_by_file: HashMap::new(),
             parameter_by_file: HashMap::new(),
+            schema_by_file: HashMap::new(),
         }
     }
 
@@ -101,6 +103,54 @@ impl<'a> ReferenceDatabase<'a> {
                     let file = reference.read_content();
 
                     let item: Parameter = match file_type {
+                        SupportFileType::Json => serde_json::from_str(&file).unwrap(),
+                        SupportFileType::Yaml => serde_yaml::from_str(&file).unwrap(),
+                    };
+                    item
+                }))
+            }
+        }
+    }
+
+    pub(super) fn resolve_schema(&mut self, reference: &str) -> Result<&Schema> {
+        let reference = Reference::new(reference)?;
+
+        match reference {
+            Reference::Local { path } => {
+                let paths = path
+                    .split('/')
+                    // #/components/parameters/SomeParameter
+                    //  ^skip first slash
+                    .skip(1)
+                    .collect::<Vec<_>>();
+                dbg!(&paths);
+                if paths.len() != 3 {
+                    anyhow::bail!("Invalid path.");
+                }
+                if paths[0] != "components" {
+                    anyhow::bail!("Invalid path.");
+                }
+                if paths[1] != "schemas" {
+                    anyhow::bail!("Invalid path.");
+                }
+
+                let schema_name = paths[2];
+                let schema = &self.local.components.as_ref().unwrap().schemas[schema_name];
+                match schema {
+                    openapiv3::ReferenceOr::Reference { reference } => {
+                        // ToDo: Stop generating the same parameters recursively.
+                        self.resolve_schema(reference)
+                    }
+                    openapiv3::ReferenceOr::Item(item) => Ok(item),
+                }
+            }
+            Reference::LocalFile(file_key) => {
+                let entry = self.schema_by_file.entry(file_key);
+                Ok(entry.or_insert_with_key(|reference| {
+                    let file_type = reference.file_type().unwrap();
+                    let file = reference.read_content();
+
+                    let item: Schema = match file_type {
                         SupportFileType::Json => serde_json::from_str(&file).unwrap(),
                         SupportFileType::Yaml => serde_yaml::from_str(&file).unwrap(),
                     };
