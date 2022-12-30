@@ -47,6 +47,12 @@ impl IrBuilder {
                 validates: self.build_validates(validates),
                 block: None,
             },
+
+            ast::Type::Number => ir::Macro::Each {
+                ty: ir::Type::Float,
+                validates: vec![],
+                block: None,
+            },
             ast::Type::String { validates } => ir::Macro::Each {
                 ty: ir::Type::String,
                 validates: self.build_validates(validates),
@@ -104,6 +110,11 @@ impl IrBuilder {
             ast::Type::Integer { validates } => ir::Macro::Value {
                 ty: ir::Type::Integer,
                 validates: self.build_validates(validates),
+                macro_or_block: None,
+            },
+            ast::Type::Number => ir::Macro::Value {
+                ty: ir::Type::Float,
+                validates: vec![],
                 macro_or_block: None,
             },
             ast::Type::String { validates } => ir::Macro::Value {

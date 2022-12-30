@@ -34,6 +34,7 @@ pub enum Type {
     Integer {
         validates: Vec<Validate>,
     },
+    Number,
     String {
         validates: Vec<Validate>,
     },

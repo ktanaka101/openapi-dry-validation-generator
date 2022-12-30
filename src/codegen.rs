@@ -141,6 +141,7 @@ fn gen_schema_class(schema_class: &ir::SchemaClass) -> String {
 fn gen_type_spec(ty: &ir::Type) -> String {
     match ty {
         ir::Type::Integer => "integer",
+        ir::Type::Float => "float",
         ir::Type::String => "string",
         ir::Type::Boolean => "boolean",
         ir::Type::Array => "array",
@@ -152,6 +153,7 @@ fn gen_type_spec(ty: &ir::Type) -> String {
 fn gen_type_predicate(ty: &ir::Type) -> String {
     match ty {
         ir::Type::Integer => "int?",
+        ir::Type::Float => "float?",
         ir::Type::String => "str?",
         ir::Type::Boolean => "bool?",
         ir::Type::Array => "array?",

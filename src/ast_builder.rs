@@ -176,6 +176,7 @@ impl<'a> AstBuilder<'a> {
 
                 ast::Type::Integer { validates }
             }
+            Type::Number(_) => ast::Type::Number,
             Type::String(string) => {
                 let mut validates = vec![];
                 if let Some(max) = string.max_length {
@@ -241,7 +242,6 @@ impl<'a> AstBuilder<'a> {
                     properties,
                 }
             }
-            _ => unimplemented!(),
         }
     }
 

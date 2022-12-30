@@ -58,6 +58,7 @@ pub enum Validate {
 
 pub enum Type {
     Integer,
+    Float,
     String,
     Boolean,
     Array,
