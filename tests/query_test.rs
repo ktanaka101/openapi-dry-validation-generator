@@ -203,103 +203,61 @@ fn query_required_and_optional() {
 }
 
 #[test]
-fn query_validates_integer() {
+fn query_validations() {
     check_parameters(
         r#"
                 [
                     {
                         "in": "query",
-                        "name": "user_id",
+                        "name": "integer_key",
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "minimum": 10,
-                            "maximum": 20
+                            "minimum": 1,
+                            "maximum": 2
                         }
-                    }
-                ]
-            "#,
-        expect![[r#"
-                TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:integer, min: 10, max: 20)
-                end
-            "#]],
-    );
-}
-
-#[test]
-fn query_validates_number() {
-    check_parameters(
-        r#"
-                [
+                    },
                     {
                         "in": "query",
-                        "name": "user_id",
+                        "name": "number_key",
                         "required": true,
                         "schema": {
                             "type": "number",
-                            "minimum": 10,
-                            "maximum": 20
+                            "minimum": 3,
+                            "maximum": 4
                         }
-                    }
-                ]
-            "#,
-        expect![[r#"
-            TestExample = Dry::Schema::Params do
-              required(:user_id).value(:float)
-            end
-        "#]],
-    );
-}
-
-#[test]
-fn query_validates_string() {
-    check_parameters(
-        r#"
-                [
+                    },
                     {
                         "in": "query",
-                        "name": "user_id",
+                        "name": "string_key",
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "minLength": 10,
-                            "maxLength": 20
+                            "minLength": 5,
+                            "maxLength": 6
                         }
-                    }
-                ]
-            "#,
-        expect![[r#"
-                TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:string, min_size: 10, max_size: 20)
-                end
-            "#]],
-    );
-}
-
-#[test]
-fn query_validates_array() {
-    check_parameters(
-        r#"
-                [
+                    },
                     {
                         "in": "query",
-                        "name": "user_id",
+                        "name": "array_key",
                         "required": true,
                         "schema": {
                             "type": "array",
-                            "minItems": 5,
-                            "maxItems": 10,
+                            "minItems": 7,
+                            "maxItems": 8,
                             "items": {}
                         }
                     }
                 ]
             "#,
         expect![[r#"
-                TestExample = Dry::Schema::Params do
-                  required(:user_id).value(:array, min_size: 5, max_size: 10)
-                end
-            "#]],
+            TestExample = Dry::Schema::Params do
+              required(:integer_key).value(:integer, min: 1, max: 2)
+              required(:number_key).value(:float)
+              required(:string_key).value(:string, min_size: 5, max_size: 6)
+              required(:array_key).value(:array, min_size: 7, max_size: 8)
+            end
+        "#]],
     );
 }
 
