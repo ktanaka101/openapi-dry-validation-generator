@@ -176,7 +176,27 @@ impl<'a> AstBuilder<'a> {
 
                 ast::Type::Integer { validates }
             }
-            Type::Number(_) => ast::Type::Number,
+            Type::Number(number) => {
+                let mut validates = vec![];
+                if let Some(max) = number.maximum {
+                    let max = if number.exclusive_maximum {
+                        max - 1.0
+                    } else {
+                        max
+                    };
+                    validates.push(ast::Validate::MaxF(max));
+                }
+                if let Some(min) = number.minimum {
+                    let min = if number.exclusive_minimum {
+                        min + 1.0
+                    } else {
+                        min
+                    };
+                    validates.push(ast::Validate::MinF(min));
+                }
+
+                ast::Type::Number { validates }
+            }
             Type::String(string) => {
                 let mut validates = vec![];
                 if let Some(max) = string.max_length {

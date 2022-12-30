@@ -52,6 +52,8 @@ impl Block {
 pub enum Validate {
     Max(i64),
     Min(i64),
+    MaxF(f64),
+    MinF(f64),
     MaxSize(usize),
     MinSize(usize),
 }

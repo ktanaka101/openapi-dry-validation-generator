@@ -12,29 +12,33 @@ pub struct Operation {
     pub queries: Vec<Schema>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Schema {
     pub ty: Type,
     pub required: bool,
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Validate {
     Max(i64),
     Min(i64),
+    MaxF(f64),
+    MinF(f64),
     MaxLength(usize),
     MinLength(usize),
     MaxItems(usize),
     MinItems(usize),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Type {
     Integer {
         validates: Vec<Validate>,
     },
-    Number,
+    Number {
+        validates: Vec<Validate>,
+    },
     String {
         validates: Vec<Validate>,
     },
@@ -49,7 +53,7 @@ pub enum Type {
     },
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Property {
     pub required: bool,
     pub key: String,

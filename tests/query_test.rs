@@ -253,9 +253,56 @@ fn query_validations() {
         expect![[r#"
             TestExample = Dry::Schema::Params do
               required(:integer_key).value(:integer, min: 1, max: 2)
-              required(:number_key).value(:float)
+              required(:number_key).value(:float, min: 3, max: 4)
               required(:string_key).value(:string, min_size: 5, max_size: 6)
               required(:array_key).value(:array, min_size: 7, max_size: 8)
+            end
+        "#]],
+    );
+}
+
+#[test]
+fn query_float_validations() {
+    check_parameters(
+        r#"
+                [
+                    {
+                        "in": "query",
+                        "name": "number_key_1",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "minimum": 1,
+                            "maximum": 2
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "number_key_2",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "minimum": 3.0,
+                            "maximum": 4.0
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "number_key_3",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "minimum": 5.1,
+                            "maximum": 6.2
+                        }
+                    }
+                ]
+            "#,
+        expect![[r#"
+            TestExample = Dry::Schema::Params do
+              required(:number_key_1).value(:float, min: 1, max: 2)
+              required(:number_key_2).value(:float, min: 3, max: 4)
+              required(:number_key_3).value(:float, min: 5.1, max: 6.2)
             end
         "#]],
     );
@@ -431,7 +478,7 @@ fn query_item_types_with_validation_in_array() {
         expect![[r#"
             TestExample = Dry::Schema::Params do
               optional(:integer_item).value(:array, min_size: 1, max_size: 2).each(:int?, min: 3, max: 4)
-              optional(:number_item).value(:array, min_size: 5, max_size: 6).each(:float?)
+              optional(:number_item).value(:array, min_size: 5, max_size: 6).each(:float?, min: 7, max: 8)
               optional(:string_item).value(:array, min_size: 9, max_size: 10).each(:str?, min_size: 11, max_size: 12)
               optional(:boolean_item).value(:array, min_size: 13, max_size: 14).each(:bool?)
               optional(:array_item).value(:array, min_size: 15, max_size: 16).each(:array?, min_size: 17, max_size: 18)
@@ -749,7 +796,7 @@ fn query_nested_array_with_validation() {
               end
               required(:nested_number).value(:array, min_size: 9, max_size: 10).each(:array?, min_size: 11, max_size: 12) do
                 schema(:array?).each(:array?, min_size: 13, max_size: 14) do
-                  schema(:array?).each(:float?)
+                  schema(:array?).each(:float?, min: 15, max: 16)
                 end
               end
               required(:nested_string).value(:array, min_size: 17, max_size: 18).each(:array?, min_size: 19, max_size: 20) do
@@ -872,7 +919,7 @@ fn query_property_types_with_validation_in_object() {
             TestExample = Dry::Schema::Params do
               optional(:property_types).value(:hash) do
                 optional(:integer_prop).value(:integer, min: 1, max: 2)
-                optional(:number_prop).value(:float)
+                optional(:number_prop).value(:float, min: 3, max: 4)
                 optional(:string_prop).value(:string, min_size: 5, max_size: 6)
                 optional(:boolean_prop).value(:boolean)
                 optional(:array_prop).value(:array, min_size: 7, max_size: 8)
@@ -1006,7 +1053,7 @@ fn query_nested_object_with_validation() {
                 optional(:nested_1).value(:hash) do
                   optional(:nested_2).value(:hash) do
                     optional(:nested_3_1).value(:integer, min: 1, max: 2)
-                    optional(:nested_3_2).value(:float)
+                    optional(:nested_3_2).value(:float, min: 3, max: 4)
                     optional(:nested_3_3).value(:string, min_size: 5, max_size: 6)
                     optional(:nested_3_4).value(:boolean)
                     optional(:nested_3_5).value(:array, min_size: 7, max_size: 8)

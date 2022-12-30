@@ -48,9 +48,9 @@ impl IrBuilder {
                 block: None,
             },
 
-            ast::Type::Number => ir::Macro::Each {
+            ast::Type::Number { validates } => ir::Macro::Each {
                 ty: ir::Type::Float,
-                validates: vec![],
+                validates: self.build_validates(validates),
                 block: None,
             },
             ast::Type::String { validates } => ir::Macro::Each {
@@ -112,9 +112,9 @@ impl IrBuilder {
                 validates: self.build_validates(validates),
                 macro_or_block: None,
             },
-            ast::Type::Number => ir::Macro::Value {
+            ast::Type::Number { validates } => ir::Macro::Value {
                 ty: ir::Type::Float,
-                validates: vec![],
+                validates: self.build_validates(validates),
                 macro_or_block: None,
             },
             ast::Type::String { validates } => ir::Macro::Value {
@@ -168,6 +168,8 @@ impl IrBuilder {
             .map(|validate| match validate {
                 ast::Validate::Max(max) => ir::Validate::Max(*max),
                 ast::Validate::Min(min) => ir::Validate::Min(*min),
+                ast::Validate::MaxF(max) => ir::Validate::MaxF(*max),
+                ast::Validate::MinF(min) => ir::Validate::MinF(*min),
                 ast::Validate::MaxLength(max) | ast::Validate::MaxItems(max) => {
                     ir::Validate::MaxSize(*max)
                 }
@@ -178,9 +180,11 @@ impl IrBuilder {
             .collect::<Vec<_>>();
         validates.sort_by_cached_key(|validate| match validate {
             ir::Validate::Min(_) => 0,
-            ir::Validate::MinSize(_) => 1,
-            ir::Validate::Max(_) => 2,
-            ir::Validate::MaxSize(_) => 3,
+            ir::Validate::MinF(_) => 1,
+            ir::Validate::MinSize(_) => 2,
+            ir::Validate::Max(_) => 3,
+            ir::Validate::MaxF(_) => 4,
+            ir::Validate::MaxSize(_) => 5,
         });
 
         validates
