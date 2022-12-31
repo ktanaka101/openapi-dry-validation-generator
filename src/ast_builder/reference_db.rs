@@ -75,7 +75,6 @@ impl<'a> ReferenceDatabase<'a> {
                     //  ^skip first slash
                     .skip(1)
                     .collect::<Vec<_>>();
-                dbg!(&paths);
                 if paths.len() != 3 {
                     anyhow::bail!("Invalid path.");
                 }
@@ -123,7 +122,6 @@ impl<'a> ReferenceDatabase<'a> {
                     //  ^skip first slash
                     .skip(1)
                     .collect::<Vec<_>>();
-                dbg!(&paths);
                 if paths.len() != 3 {
                     anyhow::bail!("Invalid path.");
                 }
