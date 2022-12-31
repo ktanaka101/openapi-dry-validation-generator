@@ -29,8 +29,8 @@ This mark(🚫) is an option that we do not believe can be supported by `dry-val
 - [ ] Custom
 - [x] Int32
 - [x] Int64
-- [ ] Float
-- [ ] Double
+- [x] Float
+- [x] Double
 - [x] String
 - [ ] Byte
 - [x] Boolean
